@@ -1,6 +1,6 @@
 <?php
 /**
- * Plugin Name: Module
+ * Plugin Name: Finder
  * Description:
  * Plugin URI: https://italystrap.com
  * Author: Enea Overclokk

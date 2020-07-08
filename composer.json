@@ -1,7 +1,7 @@
 {
-    "name": "italystrap/module-sample",
-    "description": "Generic description",
-    "keywords": [""],
+    "name": "italystrap/finder",
+    "description": "A file finder for PHP the OOP way",
+    "keywords": ["finder", "file finder"],
     "type": "library",
     "license": "MIT",
     "authors": [
@@ -27,7 +27,7 @@
         "codeception/module-filesystem": "^1.0",
         "codeception/module-cli": "^1.0",
         "codeception/util-universalframework": "^1.0",
-        "brianium/paratest": "^4.0.*",
+        "brianium/paratest": "^4.0",
         "italystrap/debug": "^2.0",
         "squizlabs/php_codesniffer": "*",
         "phpcompatibility/php-compatibility": "*",
