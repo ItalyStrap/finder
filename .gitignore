@@ -1,0 +1,9 @@
+# Directory
+/vendor/
+
+# File
+*.local
+codeception.yml
+*.lock
+*.phar
+infection.json.dist
