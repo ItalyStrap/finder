@@ -17,7 +17,7 @@ interface SearchFileStrategy {
 	 * @param array<string> $dirs A list of full path directory to search on
 	 * @return string Return the real path of the first file founded
 	 */
-	public function search( array $file_names, array $dirs ): string;
+	public function searchOne( array $file_names, array $dirs );
 
 	/**
 	 * @param array<string> $file_names The name of the files to search

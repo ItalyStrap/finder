@@ -57,7 +57,7 @@ final class Finder implements FinderInterface {
 	/**
 	 * @inheritDoc
 	 */
-	public function find( $slugs, $extensions = 'php', $slugs_separator = '-' ): string {
+	public function find( $slugs, $extensions = 'php', $slugs_separator = '-' ) {
 		$this->assertDirsIsNotEmpty();
 
 		$slugs = (array) $slugs;
@@ -83,11 +83,11 @@ final class Finder implements FinderInterface {
 	 * 	'file.php',
 	 * ]
 	 *
-	 * @return string Return the first full path to a view found ( full/path/to/a/view.{$extension} )
+	 * @return mixed Return the first full path to a view found ( full/path/to/a/view.{$extension} )
 	 *                      or return an array of files, depend on your implementation.
 	 */
-	private function filter( array $files ): string {
-		return $this->filter->search( $files, $this->dirs );
+	private function filter( array $files ) {
+		return $this->filter->searchOne( $files, $this->dirs );
 	}
 
 	/**

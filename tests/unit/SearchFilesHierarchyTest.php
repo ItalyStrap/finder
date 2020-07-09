@@ -4,7 +4,9 @@ declare(strict_types=1);
 namespace ItalyStrap\Tests;
 
 use Codeception\Test\Unit;
+use ItalyStrap\Finder\FileInfoFactory;
 use ItalyStrap\Finder\SearchFilesHierarchy;
+use ItalyStrap\Finder\SearchFileStrategy;
 use UnitTester;
 
 class SearchFilesHierarchyTest extends Unit {
@@ -17,7 +19,7 @@ class SearchFilesHierarchyTest extends Unit {
 	/**
 	 * @return array
 	 */
-	private function getFixturesPaths(): array {
+	private function getPaths(): array {
 		return $this->tester->fixturesPaths();
 	}
 
@@ -30,7 +32,7 @@ class SearchFilesHierarchyTest extends Unit {
 
 	// phpcs:ignore -- Method from Codeception
 	protected function _before() {
-		foreach ($this->getFixturesPaths() as $path ) {
+		foreach ($this->getPaths() as $path ) {
 			$this->assertDirectoryExists($path, '');
 		}
 	}
@@ -43,7 +45,8 @@ class SearchFilesHierarchyTest extends Unit {
 	 * @return \ItalyStrap\Finder\SearchFilesHierarchy
 	 */
 	private function getInstance(): \ItalyStrap\Finder\SearchFilesHierarchy {
-		$sut = new \ItalyStrap\Finder\SearchFilesHierarchy();
+		$sut = new \ItalyStrap\Finder\SearchFilesHierarchy( new FileInfoFactory() );
+		$this->assertInstanceOf( SearchFileStrategy::class, $sut, '' );
 		$this->assertInstanceOf( SearchFilesHierarchy::class, $sut, '' );
 		return $sut;
 	}
@@ -82,13 +85,13 @@ class SearchFilesHierarchyTest extends Unit {
 	 * @test
 	 * @dataProvider pathProvider()
 	 */
-	public function itShouldSearch( $file ) {
+	public function itShouldSearchAndReturnTheCorrectFilePath( $file ) {
 		$sut = $this->getInstance();
 		$dir = $this->path($this->tester::PLUGIN_PATH);
 
 		$expected = $dir . DIRECTORY_SEPARATOR . $file;
 
-		$file_name_found = $sut->search( [ $file ], [$this->path($this->tester::PLUGIN_PATH)] );
+		$file_name_found = $sut->searchOne( [ $file ], [$this->path($this->tester::PLUGIN_PATH)] );
 
 		$this->assertEquals($file_name_found, \realpath( $expected ), '');
 	}
@@ -99,7 +102,7 @@ class SearchFilesHierarchyTest extends Unit {
 	public function itShouldReturnEmptyValueIfFileDoesNotExist() {
 		$sut = $this->getInstance();
 
-		$file_name_found = $sut->search(
+		$file_name_found = $sut->searchOne(
 			[ 'unreadable' ],
 			[$this->path($this->tester::PLUGIN_PATH)]
 		);
@@ -117,7 +120,7 @@ class SearchFilesHierarchyTest extends Unit {
 			$this->path($this->tester::PLUGIN_PATH) . '/assets/css/style.css'
 		);
 
-		$file_name_found = $sut->search(
+		$file_name_found = $sut->searchOne(
 			[ 'style.css' ],
 			[$this->path($this->tester::PLUGIN_PATH) . '/assets/css/']
 		);
@@ -144,7 +147,7 @@ class SearchFilesHierarchyTest extends Unit {
 			[
 				'config.php'
 			],
-			$this->getFixturesPaths()
+			$this->getPaths()
 		);
 
 		codecept_debug($files_found);

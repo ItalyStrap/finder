@@ -5,6 +5,7 @@ namespace ItalyStrap\Tests;
 
 use Codeception\Test\Unit;
 use ItalyStrap\Finder\Exceptions\FileNotFoundException;
+use ItalyStrap\Finder\FileInfoFactory;
 use ItalyStrap\Finder\Finder;
 use ItalyStrap\Finder\FinderInterface;
 use ItalyStrap\Finder\SearchFilesHierarchy;
@@ -58,7 +59,7 @@ class FinderTest extends Unit {
 	}
 
 	private function getInstance() {
-		$sut = new Finder( new SearchFilesHierarchy() );
+		$sut = new Finder( new SearchFilesHierarchy( new FileInfoFactory() ) );
 //		$sut = new Finder( $this->getSearchStrategy() );
 		$this->assertInstanceOf( FinderInterface::class, $sut );
 		$this->assertInstanceOf( Finder::class, $sut );
@@ -137,7 +138,7 @@ class FinderTest extends Unit {
 			'findPartialFileIndex' => [
 				$this->paths,
 				['parts\subparts/index', 'jhlkjn'],
-				'parts\subparts\index.php'
+				'index.php'
 			],
 //			'findPartialFileIndexdsdf' => [
 //				$this->paths,
@@ -156,9 +157,11 @@ class FinderTest extends Unit {
 		$sut = $this->getInstance();
 		$sut->in( $path );
 
+		/**
+		 * @var $full_path_to_file \SplFileInfo
+		 */
 		$full_path_to_file = $sut->find( $to_find );
-		$this->assertFileIsReadable( $full_path_to_file, '' );
-
-		$this->assertStringContainsString( $expected, $full_path_to_file, '' );
+		$this->assertFileIsReadable( $full_path_to_file->getRealPath(), '' );
+		$this->assertStringContainsString( $expected, $full_path_to_file->getFilename(), '' );
 	}
 }
