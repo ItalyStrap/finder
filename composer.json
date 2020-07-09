@@ -42,7 +42,7 @@
     },
     "autoload": {
         "psr-4": {
-            "ItalyStrap\\ModuleSample\\": "src/"
+            "ItalyStrap\\Finder\\": "src/"
         },
         "files": [
             "functions/autoload.php"

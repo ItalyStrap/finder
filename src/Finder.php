@@ -21,12 +21,24 @@ use const DIRECTORY_SEPARATOR;
  * Class Finder
  * @package ItalyStrap\Finder
  */
-final class Finder implements FinderInterface {
+class Finder implements FinderInterface
+{
+
 
 	/**
 	 * @var array<string> List of full path directory to search
 	 */
 	protected $dirs = [];
+
+	/**
+	 * @var array<string>|string File extension
+	 */
+	protected $extensiBon = 'php';
+
+	/**
+	 * @var string
+	 */
+	protected $separator = '-';
 
 	/**
 	 * @var array<string> List of files found
@@ -143,7 +155,7 @@ final class Finder implements FinderInterface {
 
 		if ( count( $slugs ) > 1 ) {
 			array_pop( $slugs );
-			$this->generateSlugs( $slugs, $files, $extensions, $slugs_separator );
+			$this->generateSlugs( $slugs, $files );
 		}
 	}
 
