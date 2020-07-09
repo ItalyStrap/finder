@@ -75,7 +75,7 @@
         ]
     },
     "support"    : {
-        "issues": "https://github.com/ItalyStrap/module/issues",
-        "source": "https://github.com/ItalyStrap/module"
+        "issues": "https://github.com/ItalyStrap/finder/issues",
+        "source": "https://github.com/ItalyStrap/finder"
     }
 }
