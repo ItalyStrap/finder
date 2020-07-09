@@ -1,15 +1,15 @@
 {
-  "bootstrap": "index.php",
+  "bootstrap": "vendor/autoload.php",
   "php_disable_ini": true,
   "php_config": {
-    "extension": [ "json.so" ]
+    "extension": []
   },
   "path": "tests/benchmarks",
   "reports": {
     "performance": {
-      "extends": "default",
-      "title": "Module",
-      "description": "Benchmark how long it takes to run module",
+      "extends": "aggregate",
+      "title": "Finder",
+      "description": "Benchmark how long it takes to run finder",
       "cols": [ "subject", "mode" ]
     }
   },
