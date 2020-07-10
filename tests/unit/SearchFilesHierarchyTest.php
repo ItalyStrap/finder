@@ -8,7 +8,11 @@ use ItalyStrap\Finder\FileInfoFactory;
 use ItalyStrap\Finder\SearchFilesHierarchy;
 use ItalyStrap\Finder\SearchFileStrategy;
 use Prophecy\Argument;
+use Prophecy\Prophecy\ObjectProphecy;
+use SplFileInfo;
 use UnitTester;
+use function is_readable;
+use function realpath;
 
 class SearchFilesHierarchyTest extends Unit {
 
@@ -18,7 +22,7 @@ class SearchFilesHierarchyTest extends Unit {
 	protected $tester;
 
 	/**
-	 * @var \Prophecy\Prophecy\ObjectProphecy
+	 * @var ObjectProphecy
 	 */
 	private $file_info_factory;
 
@@ -30,14 +34,14 @@ class SearchFilesHierarchyTest extends Unit {
 	}
 
 	/**
-	 * @var \Prophecy\Prophecy\ObjectProphecy
+	 * @var ObjectProphecy
 	 */
 	private $file_info_fake;
 
 	/**
-	 * @return \SplFileInfo
+	 * @return SplFileInfo
 	 */
-	public function getFileInfoFake(): \SplFileInfo {
+	public function getFileInfoFake(): SplFileInfo {
 		return $this->file_info_fake->reveal();
 	}
 
@@ -62,7 +66,7 @@ class SearchFilesHierarchyTest extends Unit {
 		}
 
 		$this->file_info_factory = $this->prophesize( FileInfoFactory::class );
-		$this->file_info_fake = $this->prophesize( \SplFileInfo::class );
+		$this->file_info_fake = $this->prophesize( SplFileInfo::class );
 	}
 
 	// phpcs:ignore -- Method from Codeception
@@ -118,11 +122,11 @@ class SearchFilesHierarchyTest extends Unit {
 	 */
 	public function itShouldSearchAndReturnTheCorrectFilePathEvenIfFileNameContains( $file ) {
 		$dir = $this->path($this->tester::PLUGIN_PATH);
-		$expected = \realpath( $dir . DIRECTORY_SEPARATOR . 'test.php' );
-		$real_path = \realpath( $dir . DIRECTORY_SEPARATOR . $file );
+		$expected = realpath( $dir . DIRECTORY_SEPARATOR . 'test.php' );
+		$real_path = realpath( $dir . DIRECTORY_SEPARATOR . $file );
 
 		$this->file_info_fake->isReadable()->willReturn(
-			\is_readable( $real_path )
+			is_readable( $real_path )
 		);
 
 		$this->file_info_fake->getRealPath()->willReturn(
@@ -136,9 +140,9 @@ class SearchFilesHierarchyTest extends Unit {
 		$sut = $this->getInstance();
 
 		/**
-		 * @var $file_name_found \SplFileInfo
+		 * @var $file_name_found SplFileInfo
 		 */
-		$file_name_found = $sut->first( (array) $file, [$dir] );
+		$file_name_found = $sut->firstOneFile( (array) $file, [$dir] );
 		$this->assertEquals($file_name_found->getRealPath(), $expected, '');
 
 		$this->expectOutputString($expected);
@@ -164,7 +168,7 @@ class SearchFilesHierarchyTest extends Unit {
 
 		$sut = $this->getInstance();
 
-		$file_name_found = $sut->first(
+		$file_name_found = $sut->firstOneFile(
 			[ 'unreadable' ],
 			[$dir]
 		);

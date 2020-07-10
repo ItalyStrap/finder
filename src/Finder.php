@@ -5,7 +5,9 @@ namespace ItalyStrap\Finder;
 
 use ItalyStrap\Finder\Exceptions\FileNotFoundException;
 use LogicException;
+use SplFileInfo;
 use function array_pop;
+use function boolval;
 use function count;
 use function is_readable;
 use function json_encode;
@@ -24,14 +26,9 @@ use const DIRECTORY_SEPARATOR;
 final class Finder implements FinderInterface {
 
 	/**
-	 * @var array<string> List of full path directory to search
+	 * @var string[] List of full path directory to search
 	 */
-	protected $dirs = [];
-
-	/**
-	 * @var array<string> List of files found
-	 */
-	protected $files = [];
+	private $dirs = [];
 
 	/**
 	 * @var SearchFileStrategy
@@ -57,37 +54,61 @@ final class Finder implements FinderInterface {
 	/**
 	 * @inheritDoc
 	 */
-	public function find( $slugs, $extensions = 'php', $slugs_separator = '-' ) {
-		$this->assertDirsIsNotEmpty();
-
-		$slugs = (array) $slugs;
-
-		/**
-		 * @var array<string> An array of files
-		 */
-		$files = [];
-		$this->generateSlugs( $slugs, $files, (array) $extensions, $slugs_separator );
-
-		$this->searchAndAssertIfHasFile( $files );
-
-		return $this->files[ $this->generateKey( $files[0] ) ];
+	public function firstOneFile( $slugs, $extensions = 'php', $slugs_separator = '-' ) {
+		return $this->finderLogic( $slugs, $extensions, $slugs_separator, 'filterFirstOneFile' );
 	}
 
 	/**
-	 * @param array<string> $files
-	 * @example:
+	 * @inheritDoc
+	 */
+	public function allFiles( $slugs, $extensions = 'php', $slugs_separator = '-' ): array {
+		return $this->finderLogic( $slugs, $extensions, $slugs_separator, 'filterAllFiles' );
+	}
+
+	/**
+	 * List of files found
+	 * @var SplFileInfo[]|SplFileInfo $files
+	 */
+	private $files = [];
+
+	/**
+	 * @param string|array<string> $slugs
+	 * @param string|array<string> $extensions
+	 * @param string $slugs_separator
+	 * @param string $method_name
+	 *
+	 * @return SplFileInfo[]|SplFileInfo
+	 */
+	private function finderLogic( $slugs, $extensions, string $slugs_separator, $method_name = 'filterAllFiles' ) {
+		$this->assertDirsIsNotEmpty();
+
+		/** @var array<string> An array of files */
+		$files = [];
+		$this->generateSlugs( (array) $slugs, $files, (array)$extensions, $slugs_separator );
+
+		$this->searchAndAssertIfHasFile( $files, $method_name );
+
+		return $this->files[ $this->generateKey( $files[ 0 ] ) ];
+	}
+
+	/**
+	 *@example:
 	 * $files = [
 	 * 	'inDir/file-part.php',
 	 * 	'inDir/file.php',
 	 * 	'file-part.php',
 	 * 	'file.php',
 	 * ]
-	 *
-	 * @return mixed Return the first full path to a view found ( full/path/to/a/view.{$extension} )
+	 * Return the first full path to a view found ( full/path/to/a/view.{$extension} )
 	 *                      or return an array of files, depend on your implementation.
+	 *
 	 */
-	private function filter( array $files ) {
-		return $this->filter->first( $files, $this->dirs );
+	private function filterFirstOneFile( array $files ) {
+		return $this->filter->firstOneFile( $files, $this->dirs );
+	}
+
+	private function filterAllFiles( array $files ): array {
+		return $this->filter->allFiles( $files, $this->dirs );
 	}
 
 	/**
@@ -96,15 +117,27 @@ final class Finder implements FinderInterface {
 	 * @param array<string> $files File(s) to search for, in order.
 	 * @return bool        Return true if a file exists
 	 */
-	private function has( array $files ): bool {
+	private function has( array $files, string $method_name = 'filterFirstOneFile' ): bool {
 
 		$key = $this->generateKey( $files[0] );
 
 		if ( empty( $this->files[ $key ] ) ) {
-			$this->files[ $key ] = $this->filter( $files );
+			$this->files[ $key ] = $this->$method_name( $files );
 		}
 
-		return \boolval( $this->files[ $key ]  );
+		return boolval( $this->files[ $key ]  );
+	}
+
+	/**
+	 * @param array<string> $files
+	 * @param string $method_name
+	 */
+	private function searchAndAssertIfHasFile( array $files, string $method_name = 'filterFirstOneFile' ): void {
+		if ( !$this->has( $files, $method_name ) ) {
+			throw new FileNotFoundException(
+				sprintf( 'The file %s does not exists', strval( $files[ 0 ] ) )
+			);
+		}
 	}
 
 	/**
@@ -167,17 +200,6 @@ final class Finder implements FinderInterface {
 				'You must call %1$s::in() method before calling %1$s::find() method.',
 				__CLASS__
 			) );
-		}
-	}
-
-	/**
-	 * @param array<string> $files
-	 */
-	private function searchAndAssertIfHasFile( array $files ): void {
-		if ( !$this->has( $files ) ) {
-			throw new FileNotFoundException(
-				sprintf( 'The file %s does not exists', \strval( $files[ 0 ] ) )
-			);
 		}
 	}
 }

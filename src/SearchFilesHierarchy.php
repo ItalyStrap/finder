@@ -3,8 +3,9 @@ declare(strict_types=1);
 
 namespace ItalyStrap\Finder;
 
-use function is_readable;
+use SplFileInfo;
 use function realpath;
+use function strval;
 
 final class SearchFilesHierarchy implements SearchFileStrategy {
 
@@ -25,7 +26,7 @@ final class SearchFilesHierarchy implements SearchFileStrategy {
 	/**
 	 * @inheritDoc
 	 */
-	public function first( array $file_names, array $dirs ) {
+	public function firstOneFile( array $file_names, array $dirs ) {
 		foreach ( $file_names as $file ) {
 			foreach ( $dirs as $dir ) {
 				$temp_file = $this->getFileInfo( $dir, $file );
@@ -41,7 +42,7 @@ final class SearchFilesHierarchy implements SearchFileStrategy {
 	/**
 	 * @inheritDoc
 	 */
-	public function all( array $file_names, array $dirs ): array {
+	public function allFiles( array $file_names, array $dirs ): array {
 		$all = [];
 		foreach ( $file_names as $file ) {
 			foreach ( $dirs as $dir ) {
@@ -61,15 +62,15 @@ final class SearchFilesHierarchy implements SearchFileStrategy {
 	 * @return string
 	 */
 	private function getRealPathOfFile( string $dir, string $file ): string {
-		return \strval( realpath( $dir . self::DS . $file ) );
+		return strval( realpath( $dir . self::DS . $file ) );
 	}
 
 	/**
-	 * @param $dir
-	 * @param $file
-	 * @return \SplFileInfo
+	 * @param string $dir
+	 * @param string $file
+	 * @return SplFileInfo
 	 */
-	private function getFileInfo( $dir, $file ): \SplFileInfo {
+	private function getFileInfo( $dir, $file ): SplFileInfo {
 		return $this->factory->make( $this->getRealPathOfFile( $dir, $file ) );
 	}
 }

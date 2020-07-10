@@ -1,4 +1,4 @@
-# ItalyStrap Starter Module
+# ItalyStrap Finder
 
 [![Build Status](https://travis-ci.org/ItalyStrap/finder.svg?branch=master)](https://travis-ci.org/ItalyStrap/finder)
 [![Latest Stable Version](https://img.shields.io/packagist/v/italystrap/finder.svg)](https://packagist.org/packages/italystrap/finder)

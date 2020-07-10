@@ -11,10 +11,12 @@ use ItalyStrap\Finder\FinderInterface;
 use ItalyStrap\Finder\SearchFilesHierarchy;
 use ItalyStrap\Finder\SearchFileStrategy;
 use LogicException;
+use Prophecy\Prophecy\ObjectProphecy;
+use SplFileInfo;
 use UnitTester;
 use function codecept_data_dir;
 
-class FinderTest extends Unit {
+class FinderIntegrationTest extends Unit {
 
 	/**
 	 * @var UnitTester
@@ -22,18 +24,6 @@ class FinderTest extends Unit {
 	protected $tester;
 
 	private $paths = [];
-
-	/**
-	 * @var \Prophecy\Prophecy\ObjectProphecy
-	 */
-	private $search_strategy;
-
-	/**
-	 * @return SearchFileStrategy
-	 */
-	public function getSearchStrategy(): SearchFileStrategy {
-		return $this->search_strategy->reveal();
-	}
 
 	private function paths(): void {
 		$this->paths = [
@@ -50,8 +40,6 @@ class FinderTest extends Unit {
 		foreach ( $this->paths as $path ) {
 			$this->assertDirectoryExists($path, '');
 		}
-
-		$this->search_strategy = $this->prophesize( SearchFileStrategy::class );
 	}
 
 	// phpcs:ignore -- Method from Codeception
@@ -60,7 +48,6 @@ class FinderTest extends Unit {
 
 	private function getInstance() {
 		$sut = new Finder( new SearchFilesHierarchy( new FileInfoFactory() ) );
-//		$sut = new Finder( $this->getSearchStrategy() );
 		$this->assertInstanceOf( FinderInterface::class, $sut );
 		$this->assertInstanceOf( Finder::class, $sut );
 		return $sut;
@@ -82,7 +69,7 @@ class FinderTest extends Unit {
 
 		$this->expectException( FileNotFoundException::class );
 
-		$files = $sut->find( ['file-name', 'does-not-exists'] );
+		$files = $sut->firstOneFile( ['file-name', 'does-not-exists'] );
 	}
 
 	/**
@@ -93,7 +80,7 @@ class FinderTest extends Unit {
 //		$sut->in( [] );
 
 		$this->expectException( LogicException::class );
-		$files = $sut->find( ['file-name', 'does-not-exists'] );
+		$files = $sut->firstOneFile( ['file-name', 'does-not-exists'] );
 	}
 
 	/**
@@ -104,7 +91,7 @@ class FinderTest extends Unit {
 		$sut->in( [] );
 
 		$this->expectException( LogicException::class );
-		$files = $sut->find( ['file-name', 'does-not-exists'] );
+		$files = $sut->firstOneFile( ['file-name', 'does-not-exists'] );
 	}
 
 	public function filesNamesProvider() {
@@ -140,11 +127,6 @@ class FinderTest extends Unit {
 				['parts\subparts/index', 'jhlkjn'],
 				'index.php'
 			],
-//			'findPartialFileIndexdsdf' => [
-//				$this->paths,
-//				['parts\subparts/index.kk', 'jhlkjn'],
-//				'parts\subparts\index.kk.php'
-//			],
 		];
 	}
 
@@ -158,10 +140,54 @@ class FinderTest extends Unit {
 		$sut->in( $path );
 
 		/**
-		 * @var $full_path_to_file \SplFileInfo
+		 * @var $full_path_to_file SplFileInfo
 		 */
-		$full_path_to_file = $sut->find( $to_find );
+		$full_path_to_file = $sut->firstOneFile( $to_find );
 		$this->assertFileIsReadable( $full_path_to_file->getRealPath(), '' );
 		$this->assertStringContainsString( $expected, $full_path_to_file->getFilename(), '' );
+	}
+
+	/**
+	 * @test
+	 */
+	public function itShouldReturnSameFile() {
+
+		$sut = $this->getInstance();
+		$sut->in( $this->paths );
+
+		/**
+		 * @var $full_path_to_file01 SplFileInfo
+		 */
+		$full_path_to_file01 = $sut->firstOneFile( 'content' );
+		$full_path_to_file02 = $sut->firstOneFile( 'content' );
+		$this->assertSame( $full_path_to_file01, $full_path_to_file02, '' );
+
+		$full_path_to_file03 = $sut->firstOneFile(['content', 'none']);
+		$this->assertNotSame( $full_path_to_file01, $full_path_to_file03, '' );
+	}
+
+	/**
+	 * @test
+	 */
+	public function itShouldFindAll3ConfigFiles() {
+
+		$sut = $this->getInstance();
+		$sut->in( $this->paths );
+
+		$configs = $sut->allFiles('config');
+
+		$this->assertCount(3, $configs, '');
+
+		$i = 0;
+		foreach ( $this->paths as $key => $path ){
+			$this->assertStringContainsString(
+				\strval( \realpath( $this->paths[ $key ] ) ),
+				$configs[ $i ]->getRealPath(),
+				''
+			);
+			$i++;
+		}
+		codecept_debug( $this->paths );
+		codecept_debug( $configs );
 	}
 }

@@ -17,9 +17,9 @@ interface SearchFileStrategy {
 	 * 										'file2.php',
 	 * 									]
 	 * @param array<string> $dirs A list of full path directory to search on
-	 * @return string|SplFileInfo the first file founded if the file is readable
+	 * @return SplFileInfo|string the first file founded if the file is readable
 	 */
-	public function first( array $file_names, array $dirs );
+	public function firstOneFile( array $file_names, array $dirs );
 
 	/**
 	 * @param array<string> $file_names The name of the files to search
@@ -31,7 +31,7 @@ interface SearchFileStrategy {
 	 * 										'file2.php',
 	 * 									]
 	 * @param array<string> $dirs A list of full path directory to search on
-	 * @return array<string> Return a list of the real path of all files founded
+	 * @return array<int, SplFileInfo> Return a list of the real path of all files founded
 	 */
-	public function all( array $file_names, array $dirs ): array;
+	public function allFiles( array $file_names, array $dirs ): array;
 }

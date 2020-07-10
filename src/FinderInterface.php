@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace ItalyStrap\Finder;
 
+use SplFileInfo;
+
 /**
  * Interface FinderInterface
  * @package ItalyStrap\Finder
@@ -51,7 +53,15 @@ interface FinderInterface {
 	 * @param string|array<string> $slugs Add a slug or an array of slugs for search files
 	 * @param string|array<string> $extension Add a file extension or an array of files extension, Default is php
 	 * @param string $slugs_separator
-	 * @return string|array<string> Return a full path of the file searched
+	 * @return SplFileInfo Return a full path of the file searched
 	 */
-	public function find( $slugs, $extension = 'php', $slugs_separator = '-' );
+	public function firstOneFile( $slugs, $extension = 'php', $slugs_separator = '-' );
+
+	/**
+	 * @param string|array<string> $slugs
+	 * @param string|array<string> $extensions
+	 * @param string $slugs_separator
+	 * @return SplFileInfo[]
+	 */
+	public function allFiles( $slugs, $extensions = 'php', $slugs_separator = '-' ): array;
 }

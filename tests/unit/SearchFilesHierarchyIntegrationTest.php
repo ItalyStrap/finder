@@ -8,8 +8,8 @@ use ItalyStrap\Finder\FileInfoFactory;
 use ItalyStrap\Finder\SearchFilesHierarchy;
 use ItalyStrap\Finder\SearchFileStrategy;
 
-class SearchFilesHierarchyIntegrationTest extends Unit
-{
+class SearchFilesHierarchyIntegrationTest extends Unit {
+
 
 	/**
 	 * @var UnitTester
@@ -69,6 +69,8 @@ class SearchFilesHierarchyIntegrationTest extends Unit
 			$parent_path,
 		];
 
+		$ds = DIRECTORY_SEPARATOR;
+
 		return [
 			'content from child'	=> [
 				'content.php',
@@ -81,12 +83,12 @@ class SearchFilesHierarchyIntegrationTest extends Unit
 				$child_path . '/content.php',
 			],
 			'content-single from child'	=> [
-				'content-single.php',
+				['content-single.php','content.php'],
 				$paths,
 				$child_path . '/content-single.php',
 			],
 			'content-none from parent'	=> [
-				'content-none.php',
+				['no-file', 'content-none.php'],
 				$paths,
 				$parent_path . '/content-none.php',
 			],
@@ -94,6 +96,26 @@ class SearchFilesHierarchyIntegrationTest extends Unit
 				'config.php',
 				$paths,
 				$plugin_path . '/config.php',
+			],
+			'style from child'	=> [
+				'assets/css/style.css',
+				$paths,
+				$plugin_path . '/assets/css/style.css',
+			],
+			'js from child'	=> [
+				'assets/js/script.js',
+				$paths,
+				$plugin_path . '/assets/js/script.js',
+			],
+			'custom.css from child'	=> [
+				'assets/css/custom.css',
+				$paths,
+				$child_path . '/assets/css/custom.css',
+			],
+			'custom.js from child'	=> [
+				'assets/js/custom.js',
+				$paths,
+				$child_path . '/assets/js/custom.js',
 			],
 		];
 	}
@@ -103,13 +125,14 @@ class SearchFilesHierarchyIntegrationTest extends Unit
 	 * @dataProvider filesProvider()
 	 */
 	public function itShouldFind( $file, array $paths, string $expected ) {
+		$expect = $expected;
 		$expected = \strval( \realpath( $expected ) );
-		$this->assertIsReadable($expected, '');
+		$this->assertIsReadable($expected, 'Path not found: ' . $expect);
 
 		$sut = $this->getInstance();
 
 		/** @var \SplFileInfo $file_name_found */
-		$file_name_found = $sut->first(
+		$file_name_found = $sut->firstOneFile(
 			(array) $file,
 			$paths
 		);
@@ -131,7 +154,7 @@ class SearchFilesHierarchyIntegrationTest extends Unit
 
 		$expected = \array_map('realpath', $expected);
 
-		$files_found = $sut->all(
+		$files_found = $sut->allFiles(
 			[
 				'config.php'
 			],

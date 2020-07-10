@@ -94,6 +94,6 @@ class SearchFileBench {
 	 * @Iterations(10)
 	 */
 	public function benchCodedSearch() {
-		$this->searchFilesHierarchy->first(['test.php'], [$this->dir]);
+		$this->searchFilesHierarchy->firstOneFile(['test.php'], [$this->dir]);
 	}
 }
