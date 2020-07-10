@@ -60,6 +60,7 @@ class FileInfoFactoryTest extends \Codeception\Test\Unit {
 		$fileInfo = $sut->make( $expected );
 
 		$this->assertEquals( $expected, $fileInfo, '' );
+		$this->assertIsReadable($fileInfo->getRealPath(), '');
 		$this->assertInstanceOf(\SplFileInfo::class, $fileInfo, '');
 	}
 }

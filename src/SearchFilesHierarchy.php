@@ -25,12 +25,12 @@ final class SearchFilesHierarchy implements SearchFileStrategy {
 	/**
 	 * @inheritDoc
 	 */
-	public function searchOne( array $file_names, array $dirs ) {
+	public function first( array $file_names, array $dirs ) {
 		foreach ( $file_names as $file ) {
 			foreach ( $dirs as $dir ) {
-				$temp_file = $this->getRealPathOfFile( $dir, $file );
-				if ( is_readable( $temp_file ) ) {
-					return $this->factory->make( $temp_file );
+				$temp_file = $this->getFileInfo( $dir, $file );
+				if ( $temp_file->isReadable() ) {
+					return $temp_file;
 				}
 			}
 		}
@@ -41,13 +41,13 @@ final class SearchFilesHierarchy implements SearchFileStrategy {
 	/**
 	 * @inheritDoc
 	 */
-	public function searchAll( array $file_names, array $dirs ): array {
+	public function all( array $file_names, array $dirs ): array {
 		$all = [];
 		foreach ( $file_names as $file ) {
 			foreach ( $dirs as $dir ) {
-				$temp_file = $this->getRealPathOfFile( $dir, $file );
-				if ( is_readable( $temp_file ) ) {
-					$all[] = $this->factory->make( $temp_file );
+				$temp_file = $this->getFileInfo( $dir, $file );
+				if ( $temp_file->isReadable() ) {
+					$all[] = $temp_file;
 				}
 			}
 		}
@@ -62,5 +62,14 @@ final class SearchFilesHierarchy implements SearchFileStrategy {
 	 */
 	private function getRealPathOfFile( string $dir, string $file ): string {
 		return \strval( realpath( $dir . self::DS . $file ) );
+	}
+
+	/**
+	 * @param $dir
+	 * @param $file
+	 * @return \SplFileInfo
+	 */
+	private function getFileInfo( $dir, $file ): \SplFileInfo {
+		return $this->factory->make( $this->getRealPathOfFile( $dir, $file ) );
 	}
 }

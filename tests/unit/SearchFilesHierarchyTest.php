@@ -7,6 +7,7 @@ use Codeception\Test\Unit;
 use ItalyStrap\Finder\FileInfoFactory;
 use ItalyStrap\Finder\SearchFilesHierarchy;
 use ItalyStrap\Finder\SearchFileStrategy;
+use Prophecy\Argument;
 use UnitTester;
 
 class SearchFilesHierarchyTest extends Unit {
@@ -15,6 +16,30 @@ class SearchFilesHierarchyTest extends Unit {
 	 * @var UnitTester
 	 */
 	protected $tester;
+
+	/**
+	 * @var \Prophecy\Prophecy\ObjectProphecy
+	 */
+	private $file_info_factory;
+
+	/**
+	 * @return FileInfoFactory
+	 */
+	public function getFileInfoFactory(): FileInfoFactory {
+		return $this->file_info_factory->reveal();
+	}
+
+	/**
+	 * @var \Prophecy\Prophecy\ObjectProphecy
+	 */
+	private $file_info_fake;
+
+	/**
+	 * @return \SplFileInfo
+	 */
+	public function getFileInfoFake(): \SplFileInfo {
+		return $this->file_info_fake->reveal();
+	}
 
 	/**
 	 * @return array
@@ -35,6 +60,9 @@ class SearchFilesHierarchyTest extends Unit {
 		foreach ($this->getPaths() as $path ) {
 			$this->assertDirectoryExists($path, '');
 		}
+
+		$this->file_info_factory = $this->prophesize( FileInfoFactory::class );
+		$this->file_info_fake = $this->prophesize( \SplFileInfo::class );
 	}
 
 	// phpcs:ignore -- Method from Codeception
@@ -42,10 +70,10 @@ class SearchFilesHierarchyTest extends Unit {
 	}
 
 	/**
-	 * @return \ItalyStrap\Finder\SearchFilesHierarchy
+	 * @return SearchFilesHierarchy
 	 */
-	private function getInstance(): \ItalyStrap\Finder\SearchFilesHierarchy {
-		$sut = new \ItalyStrap\Finder\SearchFilesHierarchy( new FileInfoFactory() );
+	private function getInstance(): SearchFilesHierarchy {
+		$sut = new SearchFilesHierarchy( $this->getFileInfoFactory() );
 		$this->assertInstanceOf( SearchFileStrategy::class, $sut, '' );
 		$this->assertInstanceOf( SearchFilesHierarchy::class, $sut, '' );
 		return $sut;
@@ -60,23 +88,26 @@ class SearchFilesHierarchyTest extends Unit {
 
 	public function pathProvider() {
 		return [
-			'01'	=> [
+			'no dir separator'	=> [
 				'test.php'
 			],
-			'02'	=> [
+			'one separator'	=> [
 				'/test.php'
 			],
-			'03'	=> [
+			'one back separator'	=> [
 				'\test.php'
 			],
-			'04'	=> [
+			'normal and back separator'	=> [
 				'\/test.php'
 			],
-			'05'	=> [
+			'more separators'	=> [
 				'\//test.php'
 			],
-			'06'	=> [
-				'\/////////test.php'
+			'many separator'	=> [
+				'\\\\/////////test.php'
+			],
+			'many separator and dot'	=> [
+				'.\/////////test.php'
 			],
 		];
 	}
@@ -85,76 +116,60 @@ class SearchFilesHierarchyTest extends Unit {
 	 * @test
 	 * @dataProvider pathProvider()
 	 */
-	public function itShouldSearchAndReturnTheCorrectFilePath( $file ) {
-		$sut = $this->getInstance();
+	public function itShouldSearchAndReturnTheCorrectFilePathEvenIfFileNameContains( $file ) {
 		$dir = $this->path($this->tester::PLUGIN_PATH);
+		$expected = \realpath( $dir . DIRECTORY_SEPARATOR . 'test.php' );
+		$real_path = \realpath( $dir . DIRECTORY_SEPARATOR . $file );
 
-		$expected = $dir . DIRECTORY_SEPARATOR . $file;
+		$this->file_info_fake->isReadable()->willReturn(
+			\is_readable( $real_path )
+		);
 
-		$file_name_found = $sut->searchOne( [ $file ], [$this->path($this->tester::PLUGIN_PATH)] );
+		$this->file_info_fake->getRealPath()->willReturn(
+			$real_path
+		);
 
-		$this->assertEquals($file_name_found, \realpath( $expected ), '');
+		$this->file_info_factory
+			->make( Argument::type('string') )
+			->willReturn( $this->getFileInfoFake() )->shouldBeCalled(1);
+
+		$sut = $this->getInstance();
+
+		/**
+		 * @var $file_name_found \SplFileInfo
+		 */
+		$file_name_found = $sut->first( (array) $file, [$dir] );
+		$this->assertEquals($file_name_found->getRealPath(), $expected, '');
+
+		$this->expectOutputString($expected);
+		require $file_name_found->getRealPath();
 	}
 
 	/**
 	 * @test
 	 */
 	public function itShouldReturnEmptyValueIfFileDoesNotExist() {
+		$dir = $this->path($this->tester::PLUGIN_PATH);
+
+		$this->file_info_fake->isReadable()->willReturn(
+			false
+		);
+
+		$this->file_info_fake->getRealPath()->shouldNotBeCalled();
+
+		$this->file_info_factory
+			->make( Argument::type('string') )
+			->willReturn( $this->getFileInfoFake() )->shouldBeCalled(1);
+
+
 		$sut = $this->getInstance();
 
-		$file_name_found = $sut->searchOne(
+		$file_name_found = $sut->first(
 			[ 'unreadable' ],
-			[$this->path($this->tester::PLUGIN_PATH)]
+			[$dir]
 		);
 
 		$this->assertEmpty($file_name_found, '');
-	}
-
-	/**
-	 * @test
-	 */
-	public function itShouldFindAsset() {
-		$sut = $this->getInstance();
-
-		$expected = \realpath(
-			$this->path($this->tester::PLUGIN_PATH) . '/assets/css/style.css'
-		);
-
-		$file_name_found = $sut->searchOne(
-			[ 'style.css' ],
-			[$this->path($this->tester::PLUGIN_PATH) . '/assets/css/']
-		);
-
-		$this->assertEquals($expected, $file_name_found, '');
-	}
-
-	/**
-	 * @test
-	 */
-	public function itShouldFindAllFiles() {
-		$sut = $this->getInstance();
-
-		$expected = [];
-
-		$expected[] = \realpath(
-			$this->path($this->tester::PLUGIN_PATH) . '/test.php'
-		);
-		$expected[] = \realpath(
-			$this->path($this->tester::PLUGIN_PATH) . '/config.php'
-		);
-
-		$files_found = $sut->searchAll(
-			[
-				'config.php'
-			],
-			$this->getPaths()
-		);
-
-		codecept_debug($files_found);
-
-		$this->assertIsArray($files_found, '');
-
-//		$this->assertContains($expected[0], $files_found, '');
-		$this->assertContains($expected[1], $files_found, '');
+		$this->assertEquals('', $file_name_found, '');
 	}
 }

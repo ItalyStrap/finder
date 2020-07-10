@@ -1,7 +1,5 @@
 <?php
-
-echo $this->get( 'title', 'Default title' );
-
-?>
-
-<p>Some Text</p>
+/**
+ * File content inside child dir
+ */
+echo __FILE__;

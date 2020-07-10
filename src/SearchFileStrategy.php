@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace ItalyStrap\Finder;
 
+use SplFileInfo;
+
 interface SearchFileStrategy {
 
 	/**
@@ -15,9 +17,9 @@ interface SearchFileStrategy {
 	 * 										'file2.php',
 	 * 									]
 	 * @param array<string> $dirs A list of full path directory to search on
-	 * @return string Return the real path of the first file founded
+	 * @return string|SplFileInfo the first file founded if the file is readable
 	 */
-	public function searchOne( array $file_names, array $dirs );
+	public function first( array $file_names, array $dirs );
 
 	/**
 	 * @param array<string> $file_names The name of the files to search
@@ -31,5 +33,5 @@ interface SearchFileStrategy {
 	 * @param array<string> $dirs A list of full path directory to search on
 	 * @return array<string> Return a list of the real path of all files founded
 	 */
-	public function searchAll( array $file_names, array $dirs ): array;
+	public function all( array $file_names, array $dirs ): array;
 }

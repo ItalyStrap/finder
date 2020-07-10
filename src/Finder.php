@@ -87,7 +87,7 @@ final class Finder implements FinderInterface {
 	 *                      or return an array of files, depend on your implementation.
 	 */
 	private function filter( array $files ) {
-		return $this->filter->searchOne( $files, $this->dirs );
+		return $this->filter->first( $files, $this->dirs );
 	}
 
 	/**
