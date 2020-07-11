@@ -187,7 +187,7 @@ class FinderIntegrationTest extends Unit {
 			);
 			$i++;
 		}
-		codecept_debug( $this->paths );
-		codecept_debug( $configs );
+//		codecept_debug( $this->paths );
+//		codecept_debug( $configs );
 	}
 }

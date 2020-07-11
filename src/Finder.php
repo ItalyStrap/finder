@@ -8,16 +8,13 @@ use LogicException;
 use SplFileInfo;
 use function array_pop;
 use function boolval;
+use function call_user_func;
 use function count;
-use function is_readable;
 use function json_encode;
 use function ltrim;
 use function md5;
-use function rtrim;
 use function sprintf;
-use function str_replace;
 use function strval;
-use const DIRECTORY_SEPARATOR;
 
 /**
  * Class Finder
@@ -165,7 +162,7 @@ final class Finder implements FinderInterface {
 		$key = $this->generateKey( $files[0] );
 
 		if ( empty( $this->files[ $key ] ) ) {
-			$this->files[ $key ] = \call_user_func( $method_name, $files );
+			$this->files[ $key ] = call_user_func( $method_name, $files );
 		}
 
 		return boolval( $this->files[ $key ]  );
