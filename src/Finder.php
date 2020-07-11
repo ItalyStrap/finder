@@ -26,6 +26,23 @@ use const DIRECTORY_SEPARATOR;
 final class Finder implements FinderInterface {
 
 	/**
+	 * List of files found
+	 * [
+	 * 		'key'	=> SplFileInfo
+	 * ]
+	 * [
+	 * 		'key'	=> [
+	 * 			SplFileInfo,
+	 * 			SplFileInfo,
+	 * 			SplFileInfo,
+	 * 		]
+	 * ]
+	 *
+	 * @var array $files
+	 */
+	private $files = [];
+
+	/**
 	 * @var string[] List of full path directory to search
 	 */
 	private $dirs = [];
@@ -52,61 +69,86 @@ final class Finder implements FinderInterface {
 	}
 
 	/**
+	 * @example:
+	 * $files = [
+	 *    'inDir/file-part.php',
+	 *    'inDir/file.php',
+	 *    'file-part.php',
+	 *    'file.php',
+	 * ]
 	 * @inheritDoc
+	 * @psalm-suppress MixedInferredReturnType
 	 */
-	public function firstOneFile( $slugs, $extensions = 'php', $slugs_separator = '-' ) {
-		return $this->finderLogic( $slugs, $extensions, $slugs_separator, 'filterFirstOneFile' );
+	public function firstOneFile( $slugs, $extensions = 'php', $slugs_separator = '-' ): SplFileInfo {
+
+		/**
+		 * @psalm-suppress MixedReturnStatement
+		 */
+		return $this->searchOneOrAllFilesOnContext(
+			$slugs,
+			$extensions,
+			$slugs_separator,
+			[$this, 'filterFirstOneFile']
+		);
 	}
 
 	/**
 	 * @inheritDoc
+	 * @psalm-suppress MixedInferredReturnType
 	 */
 	public function allFiles( $slugs, $extensions = 'php', $slugs_separator = '-' ): array {
-		return $this->finderLogic( $slugs, $extensions, $slugs_separator, 'filterAllFiles' );
+
+		/**
+		 * @psalm-suppress MixedReturnStatement
+		 */
+		return $this->searchOneOrAllFilesOnContext(
+			$slugs,
+			$extensions,
+			$slugs_separator,
+			[$this, 'filterAllFiles']
+		);
 	}
 
 	/**
-	 * List of files found
-	 * @var SplFileInfo[]|SplFileInfo $files
-	 */
-	private $files = [];
-
-	/**
-	 * @param string|array<string> $slugs
-	 * @param string|array<string> $extensions
+	 * @param string|array<string> $slugs Add a slug or an array of slugs for search files
+	 * @param string|array<string> $extensions Add a file extension or an array of files extension, Default is php
 	 * @param string $slugs_separator
-	 * @param string $method_name
-	 *
-	 * @return SplFileInfo[]|SplFileInfo
+	 * @param callable $method_name
+	 * @return mixed
 	 */
-	private function finderLogic( $slugs, $extensions, string $slugs_separator, $method_name = 'filterAllFiles' ) {
+	private function searchOneOrAllFilesOnContext(
+		$slugs,
+		$extensions,
+		string $slugs_separator,
+		callable $method_name
+	) {
 		$this->assertDirsIsNotEmpty();
 
 		/** @var array<string> An array of files */
 		$files = [];
-		$this->generateSlugs( (array) $slugs, $files, (array)$extensions, $slugs_separator );
+		$this->generateSlugs( (array)$slugs, $files, (array)$extensions, $slugs_separator );
 
 		$this->searchAndAssertIfHasFile( $files, $method_name );
 
+		/**
+		 * @psalm-suppress MixedReturnStatement
+		 */
 		return $this->files[ $this->generateKey( $files[ 0 ] ) ];
 	}
 
 	/**
-	 *@example:
-	 * $files = [
-	 * 	'inDir/file-part.php',
-	 * 	'inDir/file.php',
-	 * 	'file-part.php',
-	 * 	'file.php',
-	 * ]
-	 * Return the first full path to a view found ( full/path/to/a/view.{$extension} )
-	 *                      or return an array of files, depend on your implementation.
-	 *
+	 * @param array<string> $files
+	 * @return SplFileInfo|string Return the first full path to a view found ( full/path/to/a/view.{$extension} )
+	 *                            or return an array of files, depend on your implementation.
 	 */
 	private function filterFirstOneFile( array $files ) {
 		return $this->filter->firstOneFile( $files, $this->dirs );
 	}
 
+	/**
+	 * @param array<string> $files
+	 * @return array
+	 */
 	private function filterAllFiles( array $files ): array {
 		return $this->filter->allFiles( $files, $this->dirs );
 	}
@@ -115,14 +157,15 @@ final class Finder implements FinderInterface {
 	 * Check if the file exists and is readable
 	 *
 	 * @param array<string> $files File(s) to search for, in order.
+	 * @param callable $method_name
 	 * @return bool        Return true if a file exists
 	 */
-	private function has( array $files, string $method_name = 'filterFirstOneFile' ): bool {
+	private function has( array $files, callable $method_name ): bool {
 
 		$key = $this->generateKey( $files[0] );
 
 		if ( empty( $this->files[ $key ] ) ) {
-			$this->files[ $key ] = $this->$method_name( $files );
+			$this->files[ $key ] = \call_user_func( $method_name, $files );
 		}
 
 		return boolval( $this->files[ $key ]  );
@@ -130,9 +173,9 @@ final class Finder implements FinderInterface {
 
 	/**
 	 * @param array<string> $files
-	 * @param string $method_name
+	 * @param callable $method_name
 	 */
-	private function searchAndAssertIfHasFile( array $files, string $method_name = 'filterFirstOneFile' ): void {
+	private function searchAndAssertIfHasFile( array $files, callable $method_name ): void {
 		if ( !$this->has( $files, $method_name ) ) {
 			throw new FileNotFoundException(
 				sprintf( 'The file %s does not exists', strval( $files[ 0 ] ) )

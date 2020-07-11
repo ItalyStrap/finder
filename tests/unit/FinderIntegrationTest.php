@@ -179,7 +179,7 @@ class FinderIntegrationTest extends Unit {
 		$this->assertCount(3, $configs, '');
 
 		$i = 0;
-		foreach ( $this->paths as $key => $path ){
+		foreach ( $this->paths as $key => $path ) {
 			$this->assertStringContainsString(
 				\strval( \realpath( $this->paths[ $key ] ) ),
 				$configs[ $i ]->getRealPath(),
