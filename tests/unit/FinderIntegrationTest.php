@@ -187,7 +187,47 @@ class FinderIntegrationTest extends Unit {
 			);
 			$i++;
 		}
-//		codecept_debug( $this->paths );
-//		codecept_debug( $configs );
+	}
+
+	/**
+	 * @test
+	 */
+	public function allConfigFilesShouldBeRequireableAndReturnArray() {
+
+		$sut = $this->getInstance();
+		$sut->in( $this->paths );
+
+		$configs = $sut->allFiles('config');
+
+		$expect = [
+			'Plugin config',
+			'Child config',
+			'Parent config',
+		];
+		foreach ( $configs as $key => $config ) {
+			$value_on_config = require $config;
+			$this->assertStringContainsString( $expect[$key], $value_on_config['key'], '' );
+		}
+	}
+
+	/**
+	 * @test
+	 */
+	public function testMergeAllConfig() {
+
+		$sut = $this->getInstance();
+		$sut->in( $this->paths );
+
+		/** @var array<\SplFileInfo> $configs */
+		$configs = $sut->allFiles('config');
+
+		/** @var array $result */
+		$result = array_map(function ( $config ) {
+			return require $config;
+		}, \array_reverse($configs) );
+
+		/** @var array $result */
+		$result = \array_replace_recursive( ...$result );// require $config;
+		codecept_debug( $result );
 	}
 }
