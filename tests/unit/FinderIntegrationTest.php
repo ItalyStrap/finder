@@ -213,7 +213,7 @@ class FinderIntegrationTest extends Unit {
 	/**
 	 * @test
 	 */
-	public function testMergeAllConfig() {
+	public function mergeAllConfig() {
 
 		$sut = $this->getInstance();
 		$sut->in( $this->paths );
@@ -228,6 +228,56 @@ class FinderIntegrationTest extends Unit {
 
 		/** @var array $result */
 		$result = \array_replace_recursive( ...$result );// require $config;
-		codecept_debug( $result );
+		$this->assertArrayHasKey('plugin-key', $result, '');
+		$this->assertStringContainsString('Plugin config', $result['key'], '');
+//		codecept_debug( $result );
+	}
+
+	/**
+	 * @test
+	 */
+	public function searchAsset() {
+
+		$paths = \array_map(function ($path) {
+			$path .= '/assets/css';
+			$path = \strval( \realpath( $path ) );
+			$this->assertIsReadable($path, '');
+			return $path;
+		}, $this->paths);
+
+		$sut = $this->getInstance();
+		$sut->in( $paths );
+
+		/** @var array<\SplFileInfo> $configs */
+		$css = $sut->firstOneFile('style', 'css');
+		$this->assertStringContainsString($paths['pluginPath'], $css->getRealPath(), '');
+		$this->assertEquals('style.css', $css->getFilename(), '');
+
+		/** @var array<\SplFileInfo> $configs */
+		$css = $sut->firstOneFile('custom', 'css');
+		$this->assertStringContainsString($paths['childPath'], $css->getRealPath(), '');
+		$this->assertEquals('custom.css', $css->getFilename(), '');
+
+		$files = [
+			['no', null],
+			['no', ''],
+			['no-file', 'min'],
+			['style', 'min'],
+			['custom', 'min'],
+		];
+
+		$css = '';
+		foreach ( $files as $key => $slugs ) {
+			try {
+				$css = $sut->firstOneFile( $slugs, 'css', '.' );
+				if ( $css->isReadable() ) {
+					break;
+				}
+			} catch (\Exception $e) {
+			}
+		}
+
+		$this->assertStringContainsString($paths['pluginPath'], $css->getRealPath(), '');
+		$this->assertEquals('style.css', $css->getFilename(), '');
 	}
 }
