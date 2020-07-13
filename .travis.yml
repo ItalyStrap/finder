@@ -64,7 +64,7 @@ before_install:
   - export PATH=vendor/bin:$PATH
 
 install:
-  - composer install --prefer-dist --ignore-platform-reqs
+  - composer install --prefer-dist
   - sudo chmod -R 777 $TRAVIS_BUILD_DIR/tests/_output
   # install WordPress
   - cd $WP_FOLDER
