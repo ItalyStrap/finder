@@ -156,6 +156,7 @@ class SearchFilesHierarchyIntegrationTest extends Unit {
 			return \strval( \realpath( $path ) );
 		}, $expected);
 
+		/** @var array<\SplFileInfo> $files_found */
 		$files_found = $sut->allFiles(
 			[
 				'config.php'
@@ -165,9 +166,9 @@ class SearchFilesHierarchyIntegrationTest extends Unit {
 
 		$this->assertIsArray($files_found, '');
 
-		foreach ( $expected as $expect ) {
-			$this->assertContains('/config.php', $files_found, '');
-			$this->assertContains($expect, $files_found, '');
+		foreach ( $expected as $key => $expect ) {
+			$this->assertStringContainsString('config.php', $files_found[$key]->getRealPath(), '');
+			$this->assertStringContainsString($expect, $files_found[$key]->getRealPath(), '');
 		}
 	}
 }
