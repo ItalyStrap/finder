@@ -211,7 +211,10 @@ class SearchFilesHierarchyIntegrationTest extends Unit {
 //		$dir = $this->path($this->tester::PLUGIN_PATH);
 		$dir = codecept_data_dir( 'fixtures/plugin' );
 		$expected = \realpath( $dir . DIRECTORY_SEPARATOR . 'test.php' );
-		$real_path = \strval( realpath( $dir . DIRECTORY_SEPARATOR . $file ) );
+		$real_path = \strval( realpath(
+//			$dir . DIRECTORY_SEPARATOR . $file
+			\str_replace( ['/', '\\'], DIRECTORY_SEPARATOR, $dir . DIRECTORY_SEPARATOR . $file )
+		) );
 		$this->assertIsReadable($expected, '');
 		$this->assertIsReadable($real_path, '');
 
