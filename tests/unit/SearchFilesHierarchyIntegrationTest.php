@@ -166,6 +166,10 @@ class SearchFilesHierarchyIntegrationTest extends Unit {
 
 		$this->assertIsArray($files_found, '');
 
+		foreach ( $files_found as $file_found ) {
+			$this->assertInstanceOf( \SplFileInfo::class, $file_found, '' );
+		}
+
 		foreach ( $expected as $key => $expect ) {
 			$this->assertStringContainsString('config.php', $files_found[$key]->getRealPath(), '');
 			$this->assertStringContainsString($expect, $files_found[$key]->getRealPath(), '');

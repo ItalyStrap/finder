@@ -129,6 +129,10 @@ class SearchFilesHierarchyTest extends Unit {
 			is_readable( $real_path )
 		);
 
+		$this->file_info_fake->__toString()->willReturn(
+			$real_path
+		);
+
 		$this->file_info_fake->getRealPath()->willReturn(
 			$real_path
 		);
@@ -143,7 +147,8 @@ class SearchFilesHierarchyTest extends Unit {
 		 * @var $file_name_found SplFileInfo
 		 */
 		$file_name_found = $sut->firstOneFile( (array) $file, [$dir] );
-		$this->assertEquals($file_name_found->getRealPath(), $expected, '');
+		$this->assertEquals($file_name_found, $expected, '');
+		$this->assertInstanceOf(\SplFileInfo::class, $file_name_found, '');
 
 		$this->expectOutputString($expected);
 		require $file_name_found->getRealPath();
