@@ -152,7 +152,7 @@ class SearchFilesHierarchyIntegrationTest extends Unit {
 			$this->path($this->tester::PARENT_PATH) . '/config.php',
 		];
 
-		$expected = \array_map(function (string $path){
+		$expected = \array_map(function (string $path) {
 			return \strval( \realpath( $path ) );
 		}, $expected);
 

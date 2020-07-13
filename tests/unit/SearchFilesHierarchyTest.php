@@ -121,7 +121,8 @@ class SearchFilesHierarchyTest extends Unit {
 	 * @dataProvider pathProvider()
 	 */
 	public function itShouldSearchAndReturnTheCorrectFilePathEvenIfFileNameContains( $file ) {
-		$dir = $this->path($this->tester::PLUGIN_PATH);
+//		$dir = $this->path($this->tester::PLUGIN_PATH);
+		$dir = codecept_data_dir( 'fixtures/plugin' );
 		$expected = \strval( realpath( $dir . DIRECTORY_SEPARATOR . 'test.php' ) );
 		$real_path = \strval( realpath( $dir . DIRECTORY_SEPARATOR . $file ) );
 
