@@ -152,7 +152,9 @@ class SearchFilesHierarchyIntegrationTest extends Unit {
 			$this->path($this->tester::PARENT_PATH) . '/config.php',
 		];
 
-		$expected = \array_map('realpath', $expected);
+		$expected = \array_map(function (string $path){
+			return \strval( \realpath( $path ) );
+		}, $expected);
 
 		$files_found = $sut->allFiles(
 			[
@@ -164,6 +166,7 @@ class SearchFilesHierarchyIntegrationTest extends Unit {
 		$this->assertIsArray($files_found, '');
 
 		foreach ( $expected as $expect ) {
+			$this->assertContains('/config.php', $files_found, '');
 			$this->assertContains($expect, $files_found, '');
 		}
 	}
