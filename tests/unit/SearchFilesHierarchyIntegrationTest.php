@@ -212,7 +212,6 @@ class SearchFilesHierarchyIntegrationTest extends Unit {
 		$dir = codecept_data_dir( 'fixtures/plugin' );
 		$expected = \realpath( $dir . DIRECTORY_SEPARATOR . 'test.php' );
 //		$real_path = \strval( realpath( $dir . DIRECTORY_SEPARATOR . $file ) );
-
 		$this->assertIsReadable($expected, '');
 
 		$sut = $this->getInstance();
@@ -221,7 +220,7 @@ class SearchFilesHierarchyIntegrationTest extends Unit {
 		 * @var $file_name_found \SplFileInfo
 		 */
 		$file_name_found = $sut->firstOneFile( (array) $file, [$dir] );
-		$this->assertEquals($file_name_found, $expected, '');
+		$this->assertEquals($expected, $file_name_found, '');
 		$this->assertInstanceOf(\SplFileInfo::class, $file_name_found, '');
 
 		$this->expectOutputString($expected);
