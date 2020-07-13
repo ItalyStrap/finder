@@ -117,7 +117,6 @@ class SearchFilesHierarchyTest extends Unit {
 	}
 
 	/**
-	 * @test
 	 * @dataProvider pathProvider()
 	 */
 	public function itShouldSearchAndReturnTheCorrectFilePathEvenIfFileNameContains( $file ) {

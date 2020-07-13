@@ -175,4 +175,54 @@ class SearchFilesHierarchyIntegrationTest extends Unit {
 			$this->assertStringContainsString($expect, $files_found[$key]->getRealPath(), '');
 		}
 	}
+
+	public function pathProvider() {
+		return [
+			'no dir separator'	=> [
+				'test.php'
+			],
+			'one separator'	=> [
+				'/test.php'
+			],
+			'one back separator'	=> [
+				'\test.php'
+			],
+			'normal and back separator'	=> [
+				'\/test.php'
+			],
+			'more separators'	=> [
+				'\//test.php'
+			],
+			'many separator'	=> [
+				'\\\\/////////test.php'
+			],
+			'many separator and dot'	=> [
+				'.\/////////test.php'
+			],
+		];
+	}
+
+	/**
+	 * @test
+	 * @dataProvider pathProvider()
+	 * @param $file
+	 */
+	public function itShouldSearchAndReturnTheCorrectFilePathEvenIfFileNameContains( $file ) {
+//		$dir = $this->path($this->tester::PLUGIN_PATH);
+		$dir = codecept_data_dir( 'fixtures/plugin' );
+		$expected = \strval( realpath( $dir . DIRECTORY_SEPARATOR . 'test.php' ) );
+//		$real_path = \strval( realpath( $dir . DIRECTORY_SEPARATOR . $file ) );
+
+		$sut = $this->getInstance();
+
+		/**
+		 * @var $file_name_found \SplFileInfo
+		 */
+		$file_name_found = $sut->firstOneFile( (array) $file, [$dir] );
+		$this->assertEquals($file_name_found, $expected, '');
+		$this->assertInstanceOf(\SplFileInfo::class, $file_name_found, '');
+
+		$this->expectOutputString($expected);
+		require $file_name_found->getRealPath();
+	}
 }
