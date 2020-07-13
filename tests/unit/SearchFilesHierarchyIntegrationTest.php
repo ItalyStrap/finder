@@ -220,7 +220,7 @@ class SearchFilesHierarchyIntegrationTest extends Unit {
 		 * @var $file_name_found \SplFileInfo
 		 */
 		$file_name_found = $sut->firstOneFile( (array) $file, [$dir] );
-		$this->assertEquals($expected, $file_name_found, '');
+		$this->assertEquals($expected, $file_name_found->getRealPath(), '');
 		$this->assertInstanceOf(\SplFileInfo::class, $file_name_found, '');
 
 		$this->expectOutputString($expected);
