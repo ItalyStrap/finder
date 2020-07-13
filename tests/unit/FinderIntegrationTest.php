@@ -44,6 +44,7 @@ class FinderIntegrationTest extends Unit {
 
 	// phpcs:ignore -- Method from Codeception
 	protected function _after() {
+		$this->paths = [];
 	}
 
 	private function getInstance() {

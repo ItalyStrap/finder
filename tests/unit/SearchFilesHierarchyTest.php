@@ -122,8 +122,8 @@ class SearchFilesHierarchyTest extends Unit {
 	 */
 	public function itShouldSearchAndReturnTheCorrectFilePathEvenIfFileNameContains( $file ) {
 		$dir = $this->path($this->tester::PLUGIN_PATH);
-		$expected = realpath( $dir . DIRECTORY_SEPARATOR . 'test.php' );
-		$real_path = realpath( $dir . DIRECTORY_SEPARATOR . $file );
+		$expected = \strval( realpath( $dir . DIRECTORY_SEPARATOR . 'test.php' ) );
+		$real_path = \strval( realpath( $dir . DIRECTORY_SEPARATOR . $file ) );
 
 		$this->file_info_fake->isReadable()->willReturn(
 			is_readable( $real_path )
