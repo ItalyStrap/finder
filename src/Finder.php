@@ -122,13 +122,24 @@ final class Finder implements FinderInterface {
 	) {
 		$this->assertDirsIsNotEmpty();
 
+		if ( ! is_string( $slugs ) && ! is_array( $slugs ) ) {
+			throw new \InvalidArgumentException(
+				\sprintf(
+					'The type for $slugs is not string or array, given %s',
+					gettype($slugs)
+				)
+			);
+		}
+
+		$slugs = \array_filter( (array) $slugs );
+
 		if ( empty( $slugs ) ) {
 			throw new InvalidArgumentException('$slugs must not be empty');
 		}
 
 		/** @var array<string> An array of files */
 		$files = [];
-		$this->generateSlugs( (array)$slugs, $files, (array)$extensions, $slugs_separator );
+		$this->generateSlugs( $slugs, $files, (array)$extensions, $slugs_separator );
 
 		$this->searchAndAssertIfHasFile( $files, $method_name );
 
@@ -219,7 +230,7 @@ final class Finder implements FinderInterface {
 			$files[] = ltrim( $file_name, $slugs_separator );
 		}
 
-		if ( count( $slugs ) > 1 ) {
+		if ( count( $slugs ) >= 2 ) {
 			array_pop( $slugs );
 			$this->generateSlugs( $slugs, $files, $extensions, $slugs_separator );
 		}

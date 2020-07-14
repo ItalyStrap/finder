@@ -109,22 +109,62 @@ class FinderIntegrationTest extends Unit {
 		$files = $sut->in( $this->paths )->firstFileReadable( ['test'] );
 	}
 
-	/**
-	 * @test
-	 */
-	public function itShouldThrownInvalidArgumentExceptionIfNoSlugsAreProvided() {
-		$sut = $this->getInstance();
-		$this->expectException( \InvalidArgumentException::class );
-		$files = $sut->in( $this->paths )->firstFileReadable( [] );
+	public function emptySlugsProvider() {
+		return [
+			'emptyStringIsProvided'	=> [
+				''
+			],
+			'emptyArrayProvided'	=> [
+				[]
+			],
+			'arrayWithEmptyStringIsProvided'	=> [
+				['']
+			],
+			'arrayWithNullValueIsProvided'	=> [
+				[null]
+			],
+		];
 	}
 
 	/**
 	 * @test
+	 * @dataProvider emptySlugsProvider()
+	 * @param $slug_or_slugs
 	 */
-	public function itShouldThrownInvalidArgumentExceptionIfNoSlugIsProvided() {
+	public function itShouldThrownInvalidArgumentExceptionIf( $slug_or_slugs ) {
 		$sut = $this->getInstance();
 		$this->expectException( \InvalidArgumentException::class );
-		$files = $sut->in( $this->paths )->firstFileReadable( '' );
+		$this->expectExceptionMessage('$slugs must not be empty');
+		$files = $sut->in( $this->paths )->firstFileReadable( $slug_or_slugs );
+	}
+
+	public function boolSlugsProvider() {
+		return [
+			'nullIsProvided'	=> [
+				null,
+			],
+			'falseIsProvided'	=> [
+				false,
+			],
+			'trueIsProvided'	=> [
+				true,
+			],
+		];
+	}
+
+	/**
+	 * @test
+	 * @dataProvider boolSlugsProvider()
+	 */
+	public function itShouldThrownInvalidArgumentExceptionIfBool( $slugs ) {
+		$sut = $this->getInstance();
+		$this->expectException( \InvalidArgumentException::class );
+		$this->expectExceptionMessage(
+			\sprintf(
+				'The type for $slugs is not string or array, given %s',
+				gettype($slugs)
+			));
+		$files = $sut->in( $this->paths )->firstFileReadable( $slugs );
 	}
 
 	public function filesNamesProvider() {
