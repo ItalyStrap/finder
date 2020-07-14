@@ -98,7 +98,7 @@ class FinderIntegrationTest extends Unit {
 		$sut->in( [] );
 
 		$this->expectException( LogicException::class );
-		$files = $sut->firstFileReadable( ['file-name', 'does-not-exists'] );
+		$files = $sut->firstFileReadable( ['test'] );
 	}
 
 	/**
@@ -107,6 +107,24 @@ class FinderIntegrationTest extends Unit {
 	public function itShouldChain() {
 		$sut = $this->getInstance();
 		$files = $sut->in( $this->paths )->firstFileReadable( ['test'] );
+	}
+
+	/**
+	 * @test
+	 */
+	public function itShouldThrownInvalidArgumentExceptionIfNoSlugsAreProvided() {
+		$sut = $this->getInstance();
+		$this->expectException( \InvalidArgumentException::class );
+		$files = $sut->in( $this->paths )->firstFileReadable( [] );
+	}
+
+	/**
+	 * @test
+	 */
+	public function itShouldThrownInvalidArgumentExceptionIfNoSlugIsProvided() {
+		$sut = $this->getInstance();
+		$this->expectException( \InvalidArgumentException::class );
+		$files = $sut->in( $this->paths )->firstFileReadable( '' );
 	}
 
 	public function filesNamesProvider() {
@@ -289,6 +307,7 @@ class FinderIntegrationTest extends Unit {
 					break;
 				}
 			} catch (\Exception $e) {
+				//@TODO implement logic in case no files are found
 			}
 		}
 

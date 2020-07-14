@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace ItalyStrap\Finder;
 
+use InvalidArgumentException;
 use ItalyStrap\Finder\Exceptions\FileNotFoundException;
 use LogicException;
 use SplFileInfo;
@@ -120,6 +121,10 @@ final class Finder implements FinderInterface {
 		callable $method_name
 	) {
 		$this->assertDirsIsNotEmpty();
+
+		if ( empty( $slugs ) ) {
+			throw new InvalidArgumentException('$slugs must not be empty');
+		}
 
 		/** @var array<string> An array of files */
 		$files = [];
