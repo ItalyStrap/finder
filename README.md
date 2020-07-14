@@ -6,7 +6,7 @@
 [![Latest Unstable Version](https://img.shields.io/packagist/vpre/italystrap/finder.svg)](https://packagist.org/packages/italystrap/finder)
 [![License](https://img.shields.io/packagist/l/italystrap/finder.svg)](https://packagist.org/packages/italystrap/finder)
 ![PHP from Packagist](https://img.shields.io/packagist/php-v/italystrap/finder)
-[![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2FItalyStrap%2Fcache%2Fmaster)](https://dashboard.stryker-mutator.io/reports/github.com/ItalyStrap/finder/master)
+[![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2FItalyStrap%2Ffinder%2Fmaster)](https://dashboard.stryker-mutator.io/reports/github.com/ItalyStrap/finder/master)
 
 Some description the OOP way
 

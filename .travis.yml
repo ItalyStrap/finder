@@ -111,3 +111,4 @@ script:
   - codecept run unit --coverage-text
   - vendor/bin/infection -j$(nproc)
   - vendor/bin/phpbench run --report=performance
+  - vendor/bin/phpinsights
