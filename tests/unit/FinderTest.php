@@ -9,12 +9,12 @@ use ItalyStrap\Finder\FinderInterface;
 use ItalyStrap\Finder\SearchFilesHierarchy;
 use ItalyStrap\Finder\SearchFileStrategy;
 
-class FinderTest extends \Codeception\Test\Unit
-{
-    /**
-     * @var \UnitTester
-     */
-    protected $tester;
+class FinderTest extends \Codeception\Test\Unit {
+
+	/**
+	 * @var \UnitTester
+	 */
+	protected $tester;
 	/**
 	 * @var \Prophecy\Prophecy\ObjectProphecy
 	 */
@@ -27,14 +27,14 @@ class FinderTest extends \Codeception\Test\Unit
 		return $this->search_files->reveal();
 	}
 
-	protected function _before()
-    {
-    	$this->search_files = $this->prophesize( SearchFileStrategy::class );
-    }
+	// phpcs:ignore -- Method from Codeception
+	protected function _before() {
+		$this->search_files = $this->prophesize( SearchFileStrategy::class );
+	}
 
-    protected function _after()
-    {
-    }
+	// phpcs:ignore -- Method from Codeception
+	protected function _after() {
+	}
 
 	private function getInstance() {
 		$sut = new Finder( $this->getSearchFiles() );

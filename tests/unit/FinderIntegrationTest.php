@@ -67,8 +67,9 @@ class FinderIntegrationTest extends Unit {
 		$sut->in( $this->paths );
 
 		$this->expectException( FileNotFoundException::class );
+		$this->expectExceptionMessage('The file file-name-does-not-exists.php does not exists');
 
-		$files = $sut->firstOneFile( ['file-name', 'does-not-exists'] );
+		$files = $sut->firstFileReadable( ['file-name', 'does-not-exists'] );
 	}
 
 	/**
@@ -79,7 +80,7 @@ class FinderIntegrationTest extends Unit {
 //		$sut->in( [] );
 
 		$this->expectException( LogicException::class );
-		$files = $sut->firstOneFile( ['file-name', 'does-not-exists'] );
+		$files = $sut->firstFileReadable( ['file-name', 'does-not-exists'] );
 	}
 
 	/**
@@ -90,7 +91,7 @@ class FinderIntegrationTest extends Unit {
 		$sut->in( [] );
 
 		$this->expectException( LogicException::class );
-		$files = $sut->firstOneFile( ['file-name', 'does-not-exists'] );
+		$files = $sut->firstFileReadable( ['file-name', 'does-not-exists'] );
 	}
 
 	/**
@@ -98,7 +99,7 @@ class FinderIntegrationTest extends Unit {
 	 */
 	public function itShouldChain() {
 		$sut = $this->getInstance();
-		$files = $sut->in( $this->paths )->firstOneFile( ['test'] );
+		$files = $sut->in( $this->paths )->firstFileReadable( ['test'] );
 	}
 
 	public function filesNamesProvider() {
@@ -149,7 +150,7 @@ class FinderIntegrationTest extends Unit {
 		/**
 		 * @var $full_path_to_file SplFileInfo
 		 */
-		$full_path_to_file = $sut->firstOneFile( $to_find );
+		$full_path_to_file = $sut->firstFileReadable( $to_find );
 		$this->assertFileIsReadable( $full_path_to_file->getRealPath(), '' );
 		$this->assertStringContainsString( $expected, $full_path_to_file->getFilename(), '' );
 	}
@@ -165,11 +166,11 @@ class FinderIntegrationTest extends Unit {
 		/**
 		 * @var $full_path_to_file01 SplFileInfo
 		 */
-		$full_path_to_file01 = $sut->firstOneFile( 'content' );
-		$full_path_to_file02 = $sut->firstOneFile( 'content' );
+		$full_path_to_file01 = $sut->firstFileReadable( 'content' );
+		$full_path_to_file02 = $sut->firstFileReadable( 'content' );
 		$this->assertSame( $full_path_to_file01, $full_path_to_file02, '' );
 
-		$full_path_to_file03 = $sut->firstOneFile(['content', 'none']);
+		$full_path_to_file03 = $sut->firstFileReadable(['content', 'none']);
 		$this->assertNotSame( $full_path_to_file01, $full_path_to_file03, '' );
 	}
 
@@ -256,12 +257,12 @@ class FinderIntegrationTest extends Unit {
 		$sut->in( $paths );
 
 		/** @var array<\SplFileInfo> $configs */
-		$css = $sut->firstOneFile('style', 'css');
+		$css = $sut->firstFileReadable('style', 'css');
 		$this->assertStringContainsString($paths['pluginPath'], $css->getRealPath(), '');
 		$this->assertEquals('style.css', $css->getFilename(), '');
 
 		/** @var array<\SplFileInfo> $configs */
-		$css = $sut->firstOneFile('custom', 'css');
+		$css = $sut->firstFileReadable('custom', 'css');
 		$this->assertStringContainsString($paths['childPath'], $css->getRealPath(), '');
 		$this->assertEquals('custom.css', $css->getFilename(), '');
 
@@ -276,7 +277,7 @@ class FinderIntegrationTest extends Unit {
 		$css = '';
 		foreach ( $files as $key => $slugs ) {
 			try {
-				$css = $sut->firstOneFile( $slugs, 'css', '.' );
+				$css = $sut->firstFileReadable( $slugs, 'css', '.' );
 				if ( $css->isReadable() ) {
 					break;
 				}

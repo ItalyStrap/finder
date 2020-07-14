@@ -55,7 +55,7 @@ interface FinderInterface {
 	 * @param string $slugs_separator
 	 * @return SplFileInfo Return a full path of the file searched
 	 */
-	public function firstOneFile( $slugs, $extension = 'php', $slugs_separator = '-' );
+	public function firstFileReadable( $slugs, $extension = 'php', $slugs_separator = '-' );
 
 	/**
 	 * @param string|array<string> $slugs

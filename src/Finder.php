@@ -76,7 +76,7 @@ final class Finder implements FinderInterface {
 	 * @inheritDoc
 	 * @psalm-suppress MixedInferredReturnType
 	 */
-	public function firstOneFile( $slugs, $extensions = 'php', $slugs_separator = '-' ): SplFileInfo {
+	public function firstFileReadable( $slugs, $extensions = 'php', $slugs_separator = '-' ): SplFileInfo {
 
 		/**
 		 * @psalm-suppress MixedReturnStatement
