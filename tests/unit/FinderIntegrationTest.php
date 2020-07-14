@@ -9,9 +9,7 @@ use ItalyStrap\Finder\FileInfoFactory;
 use ItalyStrap\Finder\Finder;
 use ItalyStrap\Finder\FinderInterface;
 use ItalyStrap\Finder\SearchFilesHierarchy;
-use ItalyStrap\Finder\SearchFileStrategy;
 use LogicException;
-use Prophecy\Prophecy\ObjectProphecy;
 use SplFileInfo;
 use UnitTester;
 use function codecept_data_dir;
@@ -93,6 +91,14 @@ class FinderIntegrationTest extends Unit {
 
 		$this->expectException( LogicException::class );
 		$files = $sut->firstOneFile( ['file-name', 'does-not-exists'] );
+	}
+
+	/**
+	 * @test
+	 */
+	public function itShouldChain() {
+		$sut = $this->getInstance();
+		$files = $sut->in( $this->paths )->firstOneFile( ['test'] );
 	}
 
 	public function filesNamesProvider() {
