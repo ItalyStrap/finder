@@ -122,15 +122,6 @@ final class Finder implements FinderInterface {
 	) {
 		$this->assertDirsIsNotEmpty();
 
-		if ( ! is_string( $slugs ) && ! is_array( $slugs ) ) {
-			throw new \InvalidArgumentException(
-				\sprintf(
-					'The type for $slugs is not string or array, given %s',
-					gettype($slugs)
-				)
-			);
-		}
-
 		$slugs = \array_filter( (array) $slugs );
 
 		if ( empty( $slugs ) ) {
