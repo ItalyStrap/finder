@@ -198,8 +198,8 @@ final class Finder implements FinderInterface {
 	private function generateSlugs(
 		array $slugs,
 		array &$files,
-		array $extensions = ['php'],
-		$slugs_separator = '-'
+		array $extensions,
+		string $slugs_separator
 	): void {
 
 		foreach ( $extensions as $extension ) {
@@ -237,7 +237,7 @@ final class Finder implements FinderInterface {
 	private function assertDirsIsNotEmpty(): void {
 		if ( 0 === count( $this->dirs ) ) {
 			throw new LogicException( sprintf(
-				'You must call %1$s::in() method before calling %1$s::find() method.',
+				'You must call %1$s::in() method before calling %1$s::firstFileReadable() method.',
 				__CLASS__
 			) );
 		}

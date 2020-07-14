@@ -80,7 +80,14 @@ class FinderIntegrationTest extends Unit {
 //		$sut->in( [] );
 
 		$this->expectException( LogicException::class );
-		$files = $sut->firstFileReadable( ['file-name', 'does-not-exists'] );
+		$this->expectExceptionMessage(
+			\sprintf(
+				'You must call %s method before calling %s method.',
+				Finder::class . '::in()',
+				Finder::class . '::firstFileReadable()'
+			)
+		);
+		$files = $sut->firstFileReadable( ['test'] );
 	}
 
 	/**

@@ -65,7 +65,7 @@ final class SearchFilesHierarchy implements SearchFileStrategy {
 	private function getRealPathOfFile( string $dir, string $file ): string {
 		return strval(
 			realpath(
-				str_replace( ['/', '\\'], DIRECTORY_SEPARATOR, $dir . self::DS . $file )
+				str_replace( '\\', DIRECTORY_SEPARATOR, $dir . self::DS . $file )
 			)
 		);
 	}
