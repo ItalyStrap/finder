@@ -109,5 +109,5 @@ script:
   - vendor/bin/phpstan analyze
 #  - vendor/bin/psalm
   - codecept run unit --coverage-text
-  - vendor/bin/infection --threads=4
+  - vendor/bin/infection -j$(nproc)
   - vendor/bin/phpbench run --report=performance
