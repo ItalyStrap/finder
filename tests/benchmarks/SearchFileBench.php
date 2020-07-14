@@ -56,7 +56,8 @@ class SearchFileBench {
 		foreach ( ['test.php'] as $file ) {
 			foreach ( [$this->dir] as $dir ) {
 				$temp_file = $dir . DIRECTORY_SEPARATOR . $file;
-				$temp_file = realpath( $temp_file );
+				$temp_file = str_replace( ['/', '\\'], DIRECTORY_SEPARATOR, $temp_file );
+				$temp_file = \strval(realpath( $temp_file ));
 				if ( is_readable( $temp_file ) ) {
 					return $temp_file;
 				}

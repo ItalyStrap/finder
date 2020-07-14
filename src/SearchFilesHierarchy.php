@@ -5,6 +5,7 @@ namespace ItalyStrap\Finder;
 
 use SplFileInfo;
 use function realpath;
+use function str_replace;
 use function strval;
 
 final class SearchFilesHierarchy implements SearchFileStrategy {
@@ -64,8 +65,7 @@ final class SearchFilesHierarchy implements SearchFileStrategy {
 	private function getRealPathOfFile( string $dir, string $file ): string {
 		return strval(
 			realpath(
-//				$dir . self::DS . $file
-				\str_replace( ['/', '\\'], DIRECTORY_SEPARATOR, $dir . self::DS . $file )
+				str_replace( ['/', '\\'], DIRECTORY_SEPARATOR, $dir . self::DS . $file )
 			)
 		);
 	}
