@@ -259,15 +259,15 @@ final class Finder implements FinderInterface {
 	 * @return SplFileInfo Return a full path of the file searched
 	 * @deprecated
 	 */
-	public function find( $slugs, $extensions = 'php', $slugs_separator = '-' ): SplFileInfo {
-		trigger_error( sprintf(
-			'The method %2$s() is deprecated, use %1$s::firstFileBySlugs() instead.',
-			__CLASS__,
-			__METHOD__
-		), E_USER_NOTICE);
-		/**
-		 * @psalm-suppress MixedArgument
-		 */
-		return $this->firstFileBySlugs(...func_get_args());
-	}
+//	public function find( $slugs, $extensions = 'php', $slugs_separator = '-' ): SplFileInfo {
+//		trigger_error( sprintf(
+//			'The method %2$s() is deprecated, use %1$s::firstFileBySlugs() instead.',
+//			__CLASS__,
+//			__METHOD__
+//		), E_USER_NOTICE);
+//		/**
+//		 * @psalm-suppress MixedArgument
+//		 */
+//		return $this->firstFileBySlugs(...func_get_args());
+//	}
 }

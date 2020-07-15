@@ -29,12 +29,12 @@ This package adheres to the [SemVer](http://semver.org/) specification and will 
 
 ## Basic Usage
 
-### Feature: search the specialized file inside directories
+### Feature: search the first file available inside many directories
 
     Given a list of file name
         And a list of directories to search on
     When I search a file
-    Then the highest specialized file is returned
+    Then the first available file is returned
 
 **Basic example**
 
@@ -65,6 +65,34 @@ or
 `my/theme/parent/template/file.php`
 
 If no `file.php` is founded it will throw an error message.
+
+_real code example_
+```php
+use ItalyStrap\Finder\Finder;
+use ItalyStrap\Finder\SearchFilesHierarchy;
+use ItalyStrap\Finder\FileInfoFactory;
+use ItalyStrap\Finder\FinderFactory;
+
+    $dirs = [
+        'my/theme/child/template', // First dir to search the file
+        'my/theme/parent/template', // Second dir to search the file
+    ];
+
+$find = new Finder( new SearchFilesHierarchy( new FileInfoFactory() ) );
+//or
+$find = ( new FinderFactory() )->make();
+$find->in( $dirs );
+
+// Will search for:
+// my/theme/child/template/file-specialized.php
+// my/theme/child/template/file.php
+// my/theme/parent/template/file-specialized.php
+// my/theme/parent/template/file.php
+/**
+ * @var \SplFileInfo $files_found
+ */
+$file_found = $find->firstFileBySlugs(['file', 'specialized'], 'php', '-');
+```
 
 ### Feature: search the asset file with priority
 
@@ -100,12 +128,41 @@ If the `style.css` is not found in the child directory then will search in paren
 
 If no `style.css` is founded it will throw an error message.
 
+_real code example_
+```php
+use ItalyStrap\Finder\Finder;
+use ItalyStrap\Finder\SearchFilesHierarchy;
+use ItalyStrap\Finder\FileInfoFactory;
+use ItalyStrap\Finder\FinderFactory;
+
+    $min = \defined( 'WP_DEBUG' ) && WP_DEBUG ? '.min' : '';
+    $dirs = [
+        'my/theme/child/asset/css', // First dir to search the file
+        'my/theme/parent/asset/css', // Second dir to search the file
+    ];
+
+$find = new Finder( new SearchFilesHierarchy( new FileInfoFactory() ) );
+//or
+$find = ( new FinderFactory() )->make();
+$find->in( $dirs );
+
+// Will search for:
+// my/theme/child/asset/css/style.min.css
+// my/theme/child/asset/css/style.css
+// my/theme/parent/asset/css/style.min.css
+// my/theme/parent/asset/css/style.css
+/**
+ * @var \SplFileInfo $files_found
+ */
+$file_found = $find->firstFileBySlugs(['style', $min], 'css', '.');
+```
+
 ### Feature: search the config files
 
     Given a name of a config file
         And a list of directories to search on
     When I search the config files
-    Then The list of file founded are returned sorted by priority of directory sort
+    Then The list of all file with the same name founded are returned sorted
 
 **Basic example**
 
@@ -131,6 +188,31 @@ If `config.php` exists in one or all of the given directories it will return the
 
 If no `config.php` is founded it will throw an error message.
 
+_real code example_
+```php
+use ItalyStrap\Finder\Finder;
+use ItalyStrap\Finder\SearchFilesHierarchy;
+use ItalyStrap\Finder\FileInfoFactory;
+use ItalyStrap\Finder\FinderFactory;
+
+    $dirs = [
+        'my/theme/child/config', // First dir to search the file
+        'my/theme/parent/config', // Second dir to search the file
+    ];
+
+$find = new Finder( new SearchFilesHierarchy( new FileInfoFactory() ) );
+//or
+$find = ( new FinderFactory() )->make();
+$find->in( $dirs );
+
+// Will search for:
+// my/theme/child/config/config.php
+// my/theme/parent/config/config.php
+/**
+ * @var array<\SplFileInfo> $files_found
+ */
+$files_found = $find->allFilesBySlugs(['config'], 'php', '-');
+```
 
 ## Advanced Usage
 
