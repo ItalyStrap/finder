@@ -7,10 +7,12 @@ use InvalidArgumentException;
 use ItalyStrap\Finder\Exceptions\FileNotFoundException;
 use LogicException;
 use SplFileInfo;
+use function array_filter;
 use function array_pop;
 use function boolval;
 use function call_user_func;
 use function count;
+use function func_get_args;
 use function json_encode;
 use function ltrim;
 use function md5;
@@ -122,7 +124,7 @@ final class Finder implements FinderInterface {
 	) {
 		$this->assertDirsIsNotEmpty();
 
-		$slugs = \array_filter( (array) $slugs );
+		$slugs = array_filter( (array) $slugs );
 
 		if ( empty( $slugs ) ) {
 			throw new InvalidArgumentException('$slugs must not be empty');
@@ -258,7 +260,7 @@ final class Finder implements FinderInterface {
 	 * @deprecated
 	 */
 	public function find( $slugs, $extensions = 'php', $slugs_separator = '-' ): SplFileInfo {
-		trigger_error(\sprintf(
+		trigger_error( sprintf(
 			'The method %2$s() is deprecated, use %1$s::firstFileBySlugs() instead.',
 			__CLASS__,
 			__METHOD__
@@ -266,6 +268,6 @@ final class Finder implements FinderInterface {
 		/**
 		 * @psalm-suppress MixedArgument
 		 */
-		return $this->firstFileBySlugs(...\func_get_args());
+		return $this->firstFileBySlugs(...func_get_args());
 	}
 }
