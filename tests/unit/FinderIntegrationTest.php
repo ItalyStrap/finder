@@ -69,7 +69,7 @@ class FinderIntegrationTest extends Unit {
 		$this->expectException( FileNotFoundException::class );
 		$this->expectExceptionMessage('The file file-name-does-not-exists.php does not exists');
 
-		$files = $sut->firstFileReadable( ['file-name', 'does-not-exists'] );
+		$files = $sut->firstFileBySlugs( ['file-name', 'does-not-exists'] );
 	}
 
 	/**
@@ -87,7 +87,7 @@ class FinderIntegrationTest extends Unit {
 				Finder::class . '::firstFileReadable()'
 			)
 		);
-		$files = $sut->firstFileReadable( ['test'] );
+		$files = $sut->firstFileBySlugs( ['test'] );
 	}
 
 	/**
@@ -98,7 +98,7 @@ class FinderIntegrationTest extends Unit {
 		$sut->in( [] );
 
 		$this->expectException( LogicException::class );
-		$files = $sut->firstFileReadable( ['test'] );
+		$files = $sut->firstFileBySlugs( ['test'] );
 	}
 
 	/**
@@ -106,7 +106,7 @@ class FinderIntegrationTest extends Unit {
 	 */
 	public function itShouldChain() {
 		$sut = $this->getInstance();
-		$files = $sut->in( $this->paths )->firstFileReadable( ['test'] );
+		$files = $sut->in( $this->paths )->firstFileBySlugs( ['test'] );
 	}
 
 	public function emptySlugsProvider() {
@@ -141,7 +141,7 @@ class FinderIntegrationTest extends Unit {
 		$sut = $this->getInstance();
 		$this->expectException( \InvalidArgumentException::class );
 		$this->expectExceptionMessage('$slugs must not be empty');
-		$files = $sut->in( $this->paths )->firstFileReadable( $slug_or_slugs );
+		$files = $sut->in( $this->paths )->firstFileBySlugs( $slug_or_slugs );
 	}
 
 	public function filesNamesProvider() {
@@ -177,14 +177,26 @@ class FinderIntegrationTest extends Unit {
 				['parts\subparts/index', 'jhlkjn'],
 				'index.php'
 			],
+//			'findPartialFileIndexggg' => [
+//				$this->paths,
+//				[
+//					'test',
+//					['test'],
+//					['content'],
+//				],
+//				'index.php'
+//			],
 		];
 	}
 
 	/**
 	 * @test
 	 * @dataProvider filesNamesProvider()
+	 * @param $path
+	 * @param $to_find
+	 * @param string $expected
 	 */
-	public function itShould( $path, $to_find, $expected ) {
+	public function itShould( $path, $to_find, string $expected ) {
 
 		$sut = $this->getInstance();
 		$sut->in( $path );
@@ -192,7 +204,7 @@ class FinderIntegrationTest extends Unit {
 		/**
 		 * @var $full_path_to_file SplFileInfo
 		 */
-		$full_path_to_file = $sut->firstFileReadable( $to_find );
+		$full_path_to_file = $sut->firstFileBySlugs( $to_find );
 		$this->assertFileIsReadable( $full_path_to_file->getRealPath(), '' );
 		$this->assertStringContainsString( $expected, $full_path_to_file->getFilename(), '' );
 	}
@@ -208,11 +220,11 @@ class FinderIntegrationTest extends Unit {
 		/**
 		 * @var $full_path_to_file01 SplFileInfo
 		 */
-		$full_path_to_file01 = $sut->firstFileReadable( 'content' );
-		$full_path_to_file02 = $sut->firstFileReadable( 'content' );
+		$full_path_to_file01 = $sut->firstFileBySlugs( 'content' );
+		$full_path_to_file02 = $sut->firstFileBySlugs( 'content' );
 		$this->assertSame( $full_path_to_file01, $full_path_to_file02, '' );
 
-		$full_path_to_file03 = $sut->firstFileReadable(['content', 'none']);
+		$full_path_to_file03 = $sut->firstFileBySlugs(['content', 'none']);
 		$this->assertNotSame( $full_path_to_file01, $full_path_to_file03, '' );
 	}
 
@@ -224,7 +236,7 @@ class FinderIntegrationTest extends Unit {
 		$sut = $this->getInstance();
 		$sut->in( $this->paths );
 
-		$configs = $sut->allFiles('config');
+		$configs = $sut->allFilesBySlugs('config');
 
 		$this->assertCount(3, $configs, '');
 
@@ -247,7 +259,7 @@ class FinderIntegrationTest extends Unit {
 		$sut = $this->getInstance();
 		$sut->in( $this->paths );
 
-		$configs = $sut->allFiles('config');
+		$configs = $sut->allFilesBySlugs('config');
 
 		$expect = [
 			'Plugin config',
@@ -269,7 +281,7 @@ class FinderIntegrationTest extends Unit {
 		$sut->in( $this->paths );
 
 		/** @var array<\SplFileInfo> $configs */
-		$configs = $sut->allFiles('config');
+		$configs = $sut->allFilesBySlugs('config');
 
 		/** @var array $result */
 		$result = array_map(function ( $config ) {
@@ -299,27 +311,27 @@ class FinderIntegrationTest extends Unit {
 		$sut->in( $paths );
 
 		/** @var array<\SplFileInfo> $configs */
-		$css = $sut->firstFileReadable('style', 'css');
+		$css = $sut->firstFileBySlugs('style', 'css');
 		$this->assertStringContainsString($paths['pluginPath'], $css->getRealPath(), '');
 		$this->assertEquals('style.css', $css->getFilename(), '');
 
 		/** @var array<\SplFileInfo> $configs */
-		$css = $sut->firstFileReadable('custom', 'css');
+		$css = $sut->firstFileBySlugs('custom', 'css');
 		$this->assertStringContainsString($paths['childPath'], $css->getRealPath(), '');
 		$this->assertEquals('custom.css', $css->getFilename(), '');
 
 		$files = [
-			['no', null],
-			['no', ''],
+			['no'],
 			['no-file', 'min'],
 			['style', 'min'],
 			['custom', 'min'],
 		];
 
 		$css = '';
+		$count = \count($files) - 1;
 		foreach ( $files as $key => $slugs ) {
 			try {
-				$css = $sut->firstFileReadable( $slugs, 'css', '.' );
+				$css = $sut->firstFileBySlugs( $slugs, 'css', '.' );
 				if ( $css->isReadable() ) {
 					break;
 				}

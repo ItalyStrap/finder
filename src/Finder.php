@@ -77,12 +77,12 @@ final class Finder implements FinderInterface {
 	 * @inheritDoc
 	 * @psalm-suppress MixedInferredReturnType
 	 */
-	public function firstFileReadable( $slugs, $extensions = 'php', $slugs_separator = '-' ): SplFileInfo {
+	public function firstFileBySlugs( $slugs, $extensions = 'php', $slugs_separator = '-' ): SplFileInfo {
 
 		/**
 		 * @psalm-suppress MixedReturnStatement
 		 */
-		return $this->searchOneOrAllFilesOnContext(
+		return $this->searchOneOrAllFilesBySlugsOnContext(
 			$slugs,
 			$extensions,
 			$slugs_separator,
@@ -94,12 +94,12 @@ final class Finder implements FinderInterface {
 	 * @inheritDoc
 	 * @psalm-suppress MixedInferredReturnType
 	 */
-	public function allFiles( $slugs, $extensions = 'php', $slugs_separator = '-' ): array {
+	public function allFilesBySlugs( $slugs, $extensions = 'php', $slugs_separator = '-' ): array {
 
 		/**
 		 * @psalm-suppress MixedReturnStatement
 		 */
-		return $this->searchOneOrAllFilesOnContext(
+		return $this->searchOneOrAllFilesBySlugsOnContext(
 			$slugs,
 			$extensions,
 			$slugs_separator,
@@ -114,7 +114,7 @@ final class Finder implements FinderInterface {
 	 * @param callable $method_name
 	 * @return mixed
 	 */
-	private function searchOneOrAllFilesOnContext(
+	private function searchOneOrAllFilesBySlugsOnContext(
 		$slugs,
 		$extensions,
 		string $slugs_separator,
@@ -248,5 +248,24 @@ final class Finder implements FinderInterface {
 				__CLASS__
 			) );
 		}
+	}
+
+	/**
+	 * @param string|array<string> $slugs Add a slug or an array of slugs for search files
+	 * @param string|array<string> $extensions Add a file extension or an array of files extension, Default is php
+	 * @param string $slugs_separator
+	 * @return SplFileInfo Return a full path of the file searched
+	 * @deprecated
+	 */
+	public function find( $slugs, $extensions = 'php', $slugs_separator = '-' ): SplFileInfo {
+		trigger_error(\sprintf(
+			'The method %2$s() is deprecated, use %1$s::firstFileBySlugs() instead.',
+			__CLASS__,
+			__METHOD__
+		), E_USER_NOTICE);
+		/**
+		 * @psalm-suppress MixedArgument
+		 */
+		return $this->firstFileBySlugs(...\func_get_args());
 	}
 }
