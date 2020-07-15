@@ -15,7 +15,7 @@
     "@default": true,
     "@regex": {
       "ignore": [
-        "ItalyStrap\\Finder::find"
+        "ItalyStrap\\Finder\\Finder::find"
       ]
     }
   },
