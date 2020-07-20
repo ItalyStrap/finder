@@ -152,7 +152,7 @@ final class Finder implements FinderInterface, \IteratorAggregate {
 
 		$segments = array_filter( (array) $segments );
 
-		$files = $this->generateFileNames( $segments,(array)$extensions, $segments_separator );
+		$files = $this->generateFileNames( $segments, (array)$extensions, $segments_separator );
 		$this->names( $files );
 
 		$this->searchAndAssertIfHasFile( $method_name );

@@ -401,7 +401,6 @@ class FinderIntegrationTest extends Unit {
 		$sut->names( ['style.css'] );
 
 		foreach ( $sut as $item ) {
-
 		}
 
 		/**
@@ -418,6 +417,5 @@ class FinderIntegrationTest extends Unit {
 		 *  ['file'],
 		 * ]
 		 */
-
 	}
 }
