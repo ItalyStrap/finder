@@ -8,7 +8,9 @@
 ![PHP from Packagist](https://img.shields.io/packagist/php-v/italystrap/finder)
 [![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2FItalyStrap%2Ffinder%2Fmaster)](https://dashboard.stryker-mutator.io/reports/github.com/ItalyStrap/finder/master)
 
-Some description the OOP way
+File finder API the OOP way
+
+This is still a WIP repository.
 
 ## Table Of Contents
 
@@ -69,7 +71,7 @@ If no `file.php` is founded it will throw an error message.
 _real code example_
 ```php
 use ItalyStrap\Finder\Finder;
-use ItalyStrap\Finder\SearchFilesHierarchy;
+use ItalyStrap\Finder\FilesHierarchyIterator;
 use ItalyStrap\Finder\FileInfoFactory;
 use ItalyStrap\Finder\FinderFactory;
 
@@ -78,7 +80,7 @@ use ItalyStrap\Finder\FinderFactory;
         'my/theme/parent/template', // Second dir to search the file
     ];
 
-$find = new Finder( new SearchFilesHierarchy( new FileInfoFactory() ) );
+$find = new Finder( new FilesHierarchyIterator( new FileInfoFactory() ) );
 //or
 $find = ( new FinderFactory() )->make();
 $find->in( $dirs );
@@ -91,7 +93,7 @@ $find->in( $dirs );
 /**
  * @var \SplFileInfo $files_found
  */
-$file_found = $find->firstFileBySlugs(['file', 'specialized'], 'php', '-');
+$file_found = $find->firstFile(['file', 'specialized'], 'php', '-');
 ```
 
 ### Feature: search the asset file with priority
@@ -131,7 +133,7 @@ If no `style.css` is founded it will throw an error message.
 _real code example_
 ```php
 use ItalyStrap\Finder\Finder;
-use ItalyStrap\Finder\SearchFilesHierarchy;
+use ItalyStrap\Finder\FilesHierarchyIterator;
 use ItalyStrap\Finder\FileInfoFactory;
 use ItalyStrap\Finder\FinderFactory;
 
@@ -141,7 +143,7 @@ use ItalyStrap\Finder\FinderFactory;
         'my/theme/parent/asset/css', // Second dir to search the file
     ];
 
-$find = new Finder( new SearchFilesHierarchy( new FileInfoFactory() ) );
+$find = new Finder( new FilesHierarchyIterator( new FileInfoFactory() ) );
 //or
 $find = ( new FinderFactory() )->make();
 $find->in( $dirs );
@@ -154,7 +156,7 @@ $find->in( $dirs );
 /**
  * @var \SplFileInfo $files_found
  */
-$file_found = $find->firstFileBySlugs(['style', $min], 'css', '.');
+$file_found = $find->firstFile(['style', $min], 'css', '.');
 ```
 
 ### Feature: search the config files
@@ -191,7 +193,7 @@ If no `config.php` is founded it will throw an error message.
 _real code example_
 ```php
 use ItalyStrap\Finder\Finder;
-use ItalyStrap\Finder\SearchFilesHierarchy;
+use ItalyStrap\Finder\FilesHierarchyIterator;
 use ItalyStrap\Finder\FileInfoFactory;
 use ItalyStrap\Finder\FinderFactory;
 
@@ -200,7 +202,7 @@ use ItalyStrap\Finder\FinderFactory;
         'my/theme/parent/config', // Second dir to search the file
     ];
 
-$find = new Finder( new SearchFilesHierarchy( new FileInfoFactory() ) );
+$find = new Finder( new FilesHierarchyIterator( new FileInfoFactory() ) );
 //or
 $find = ( new FinderFactory() )->make();
 $find->in( $dirs );
@@ -211,7 +213,7 @@ $find->in( $dirs );
 /**
  * @var array<\SplFileInfo> $files_found
  */
-$files_found = $find->allFilesBySlugs(['config'], 'php', '-');
+$files_found = $find->allFiles(['config'], 'php', '-');
 ```
 
 ## Advanced Usage

@@ -18,6 +18,11 @@ interface FinderInterface {
 	public function in( $dirs );
 
 	/**
+	 * @param $files
+	 */
+	public function names( $files );
+
+	/**
 	 * Load a template part into a template
 	 *
 	 * Makes it easy for a theme to reuse sections of code in a easy to overload way
@@ -53,15 +58,15 @@ interface FinderInterface {
 	 * @param string|array<string> $slugs Add a slug or an array of slugs for search files
 	 * @param string|array<string> $extension Add a file extension or an array of files extension, Default is php
 	 * @param string $slugs_separator
-	 * @return SplFileInfo Return a full path of the file searched
+	 * @return mixed Return a full path of the file searched
 	 */
-	public function firstFileBySlugs( $slugs, $extension = 'php', $slugs_separator = '-' );
+	public function firstFile( $slugs, $extension = 'php', $slugs_separator = '-' );
 
 	/**
 	 * @param string|array<string> $slugs
 	 * @param string|array<string> $extensions
 	 * @param string $slugs_separator
-	 * @return SplFileInfo[]
+	 * @return mixed
 	 */
-	public function allFilesBySlugs( $slugs, $extensions = 'php', $slugs_separator = '-' ): array;
+	public function allFiles( $slugs, $extensions = 'php', $slugs_separator = '-' ): array;
 }

@@ -5,7 +5,7 @@ namespace ItalyStrap\Tests;
 
 use Codeception\Test\Unit;
 use ItalyStrap\Finder\FileInfoFactory;
-use ItalyStrap\Finder\SearchFilesHierarchy;
+use ItalyStrap\Finder\FilesHierarchyIterator;
 use ItalyStrap\Finder\SearchFileStrategy;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
@@ -74,12 +74,12 @@ class SearchFilesHierarchyTest extends Unit {
 	}
 
 	/**
-	 * @return SearchFilesHierarchy
+	 * @return FilesHierarchyIterator
 	 */
-	private function getInstance(): SearchFilesHierarchy {
-		$sut = new SearchFilesHierarchy( $this->getFileInfoFactory() );
+	private function getInstance(): FilesHierarchyIterator {
+		$sut = new FilesHierarchyIterator( $this->getFileInfoFactory() );
 		$this->assertInstanceOf( SearchFileStrategy::class, $sut, '' );
-		$this->assertInstanceOf( SearchFilesHierarchy::class, $sut, '' );
+		$this->assertInstanceOf( FilesHierarchyIterator::class, $sut, '' );
 		return $sut;
 	}
 
@@ -88,6 +88,27 @@ class SearchFilesHierarchyTest extends Unit {
 	 */
 	public function instanceOk() {
 		$sut = $this->getInstance();
+	}
+
+	/**
+	 * @test
+	 */
+	public function itShouldThrownExceptionIfNameIsNotCalled() {
+		$sut = $this->getInstance();
+		$this->expectException( \LogicException::class );
+		$this->expectExceptionMessage( 'You must call ::name() method before iterate over' );
+		$sut->getIterator();
+	}
+
+	/**
+	 * @test
+	 */
+	public function itShouldThrownExceptionIfInIsNotCalled() {
+		$sut = $this->getInstance();
+		$sut->names(['test.php']);
+		$this->expectException( \LogicException::class );
+		$this->expectExceptionMessage( 'You must call ::in() method before iterate over' );
+		$sut->getIterator();
 	}
 
 	public function pathProvider() {
@@ -142,11 +163,13 @@ class SearchFilesHierarchyTest extends Unit {
 			->willReturn( $this->getFileInfoFake() )->shouldBeCalled(1);
 
 		$sut = $this->getInstance();
+		$sut->names((array) $file);
+		$sut->in([$dir]);
 
 		/**
 		 * @var $file_name_found SplFileInfo
 		 */
-		$file_name_found = $sut->firstOneFile( (array) $file, [$dir] );
+		$file_name_found = $sut->firstFile();
 		$this->assertEquals($file_name_found, $expected, '');
 		$this->assertInstanceOf(\SplFileInfo::class, $file_name_found, '');
 
@@ -172,11 +195,10 @@ class SearchFilesHierarchyTest extends Unit {
 
 
 		$sut = $this->getInstance();
+		$sut->in([$dir]);
+		$sut->names([ 'unreadable' ]);
 
-		$file_name_found = $sut->firstOneFile(
-			[ 'unreadable' ],
-			[$dir]
-		);
+		$file_name_found = $sut->firstFile();
 
 		$this->assertEmpty($file_name_found, '');
 		$this->assertEquals('', $file_name_found, '');

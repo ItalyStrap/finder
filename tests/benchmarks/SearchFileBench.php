@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace ItalyStrap\Tests\Benchmark;
 
 use ItalyStrap\Finder\FileInfoFactory;
-use ItalyStrap\Finder\SearchFilesHierarchy;
+use ItalyStrap\Finder\FilesHierarchyIterator;
 use function realpath;
 
 /**
@@ -13,7 +13,7 @@ use function realpath;
 class SearchFileBench {
 
 	/**
-	 * @var SearchFilesHierarchy
+	 * @var FilesHierarchyIterator
 	 */
 	private $searchFilesHierarchy;
 
@@ -38,7 +38,7 @@ class SearchFileBench {
 //			return true;
 //		});
 
-		$this->searchFilesHierarchy = new SearchFilesHierarchy( new FileInfoFactory() );
+		$this->searchFilesHierarchy = new FilesHierarchyIterator( new FileInfoFactory() );
 
 		$this->dir_test_path = realpath(__DIR__ . DIRECTORY_SEPARATOR . '..');
 		$this->file_full_path = $this->dir_test_path . '\_data\fixtures\plugin\test.php';
@@ -95,6 +95,8 @@ class SearchFileBench {
 	 * @Iterations(10)
 	 */
 	public function benchCodedSearch() {
-		$this->searchFilesHierarchy->firstOneFile(['test.php'], [$this->dir]);
+		$this->searchFilesHierarchy->names(['test.php']);
+		$this->searchFilesHierarchy->in([$this->dir]);
+		$this->searchFilesHierarchy->firstFile();
 	}
 }

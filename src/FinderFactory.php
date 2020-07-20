@@ -10,6 +10,6 @@ namespace ItalyStrap\Finder;
 class FinderFactory {
 
 	public function make(): FinderInterface {
-		return new Finder( new SearchFilesHierarchy( new FileInfoFactory() ) );
+		return new Finder( new FilesHierarchyIterator( new FileInfoFactory() ) );
 	}
 }

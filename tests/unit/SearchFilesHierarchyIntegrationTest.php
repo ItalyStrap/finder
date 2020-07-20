@@ -5,11 +5,16 @@ namespace ItalyStrap\Tests;
 
 use Codeception\Test\Unit;
 use ItalyStrap\Finder\FileInfoFactory;
-use ItalyStrap\Finder\SearchFilesHierarchy;
+use ItalyStrap\Finder\FilesHierarchyIterator;
 use ItalyStrap\Finder\SearchFileStrategy;
+use SplFileInfo;
+use UnitTester;
+use function array_map;
+use function realpath;
+use function str_replace;
+use function strval;
 
 class SearchFilesHierarchyIntegrationTest extends Unit {
-
 
 	/**
 	 * @var UnitTester
@@ -42,12 +47,12 @@ class SearchFilesHierarchyIntegrationTest extends Unit {
 	}
 
 	/**
-	 * @return SearchFilesHierarchy
+	 * @return FilesHierarchyIterator
 	 */
-	private function getInstance(): SearchFilesHierarchy {
-		$sut = new SearchFilesHierarchy( new FileInfoFactory() );
+	private function getInstance(): FilesHierarchyIterator {
+		$sut = new FilesHierarchyIterator( new FileInfoFactory() );
 		$this->assertInstanceOf( SearchFileStrategy::class, $sut, '' );
-		$this->assertInstanceOf( SearchFilesHierarchy::class, $sut, '' );
+		$this->assertInstanceOf( FilesHierarchyIterator::class, $sut, '' );
 		return $sut;
 	}
 
@@ -126,17 +131,19 @@ class SearchFilesHierarchyIntegrationTest extends Unit {
 	 */
 	public function itShouldFind( $file, array $paths, string $expected ) {
 		$expect = $expected;
-		$expected = \strval( \realpath( $expected ) );
+		$expected = strval( realpath( $expected ) );
 		$this->assertIsReadable($expected, 'Path not found: ' . $expect);
 
 		$sut = $this->getInstance();
+		$sut->in( $paths );
+		$sut->names( (array) $file );
 
-		/** @var \SplFileInfo $file_name_found */
-		$file_name_found = $sut->firstOneFile(
-			(array) $file,
-			$paths
-		);
+//		$sut->onlyFirstFile();
+//		$this->assertCount(1, $sut, '');
 
+		/** @var SplFileInfo $file_name_found */
+		$file_name_found = $sut->firstFile();
+//
 		$this->assertEquals($expected, $file_name_found->getRealPath(), '');
 	}
 
@@ -152,27 +159,17 @@ class SearchFilesHierarchyIntegrationTest extends Unit {
 			$this->path($this->tester::PARENT_PATH) . '/config.php',
 		];
 
-		$expected = \array_map(function (string $path) {
-			return \strval( \realpath( $path ) );
+		$expected = array_map(function (string $path) {
+			return strval( realpath( $path ) );
 		}, $expected);
 
-		/** @var array<\SplFileInfo> $files_found */
-		$files_found = $sut->allFiles(
-			[
-				'config.php'
-			],
-			$this->getPaths()
-		);
+		$sut->in( $this->getPaths() );
+		$sut->names( [ 'config.php' ] );
 
-		$this->assertIsArray($files_found, '');
-
-		foreach ( $files_found as $file_found ) {
-			$this->assertInstanceOf( \SplFileInfo::class, $file_found, '' );
-		}
-
-		foreach ( $expected as $key => $expect ) {
-			$this->assertStringContainsString('config.php', $files_found[$key]->getRealPath(), '');
-			$this->assertStringContainsString($expect, $files_found[$key]->getRealPath(), '');
+		/** @var \SplFileInfo $item */
+		foreach ( $sut as $key => $item ) {
+			$this->assertInstanceOf( SplFileInfo::class, $item, '' );
+			$this->assertSame($expected[$key], $item->getRealPath(), '');
 		}
 	}
 
@@ -210,24 +207,55 @@ class SearchFilesHierarchyIntegrationTest extends Unit {
 	public function itShouldSearchAndReturnTheCorrectFilePathEvenIfFileNameContains( $file ) {
 //		$dir = $this->path($this->tester::PLUGIN_PATH);
 		$dir = codecept_data_dir( 'fixtures/plugin' );
-		$expected = \realpath( $dir . DIRECTORY_SEPARATOR . 'test.php' );
-		$real_path = \strval( realpath(
+		$expected = realpath( $dir . DIRECTORY_SEPARATOR . 'test.php' );
+		$real_path = strval( realpath(
 //			$dir . DIRECTORY_SEPARATOR . $file
-			\str_replace( ['/', '\\'], DIRECTORY_SEPARATOR, $dir . DIRECTORY_SEPARATOR . $file )
+			str_replace( ['/', '\\'], DIRECTORY_SEPARATOR, $dir . DIRECTORY_SEPARATOR . $file )
 		) );
 		$this->assertIsReadable($expected, '');
 		$this->assertIsReadable($real_path, '');
 
 		$sut = $this->getInstance();
+		$sut->in( [$dir] );
+		$sut->names( (array) $file );
 
 		/**
-		 * @var $file_name_found \SplFileInfo
+		 * @var $file_name_found SplFileInfo
 		 */
-		$file_name_found = $sut->firstOneFile( (array) $file, [$dir] );
+		$file_name_found = $sut->firstFile();
 		$this->assertEquals($expected, $file_name_found->getRealPath(), '');
-		$this->assertInstanceOf(\SplFileInfo::class, $file_name_found, '');
+		$this->assertInstanceOf( SplFileInfo::class, $file_name_found, '');
 
 		$this->expectOutputString($expected);
 		require $file_name_found->getRealPath();
+	}
+
+	/**
+	 * @test
+	 */
+	public function itShouldGetIterator() {
+		$sut = $this->getInstance();
+		$this->assertInstanceOf(\IteratorAggregate::class, $sut, '');
+		$this->assertInstanceOf(\Traversable::class, $sut, '');
+
+		$sut->in( [ codecept_data_dir( 'fixtures/plugin' ) ] );
+		$sut->names( ['test.php'] );
+
+		$iterator = $sut->getIterator();
+		$this->assertInstanceOf(\Iterator::class, $iterator, '');
+	}
+
+	/**
+	 * @test
+	 */
+	public function itShouldIterateOverIterator() {
+		$sut = $this->getInstance();
+		$sut->in( [ codecept_data_dir( 'fixtures/plugin' ) ] );
+		$sut->names( ['test.php'] );
+
+		/** @var \SplFileInfo $item */
+		foreach ( $sut as $item ) {
+			$this->assertSame('test.php', $item->getFilename(), '');
+		}
 	}
 }

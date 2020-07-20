@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace ItalyStrap\Finder;
 
 use InvalidArgumentException;
+use ItalyStrap\Finder\Exceptions\InvalidStateException;
 use ItalyStrap\Finder\Exceptions\FileNotFoundException;
 use LogicException;
 use SplFileInfo;
@@ -12,9 +13,8 @@ use function array_pop;
 use function boolval;
 use function call_user_func;
 use function count;
-use function func_get_args;
+use function implode;
 use function json_encode;
-use function ltrim;
 use function md5;
 use function sprintf;
 use function strval;
@@ -23,7 +23,7 @@ use function strval;
  * Class Finder
  * @package ItalyStrap\Finder
  */
-final class Finder implements FinderInterface {
+final class Finder implements FinderInterface, \IteratorAggregate {
 
 	/**
 	 * List of files found
@@ -38,7 +38,17 @@ final class Finder implements FinderInterface {
 	 * 		]
 	 * ]
 	 *
-	 * @var array $files
+	 * @var array $files_to_search
+	 */
+	private $files_to_search = [];
+
+	/**
+	 * List of files to search
+	 * [
+	 * 		''
+	 * ]
+	 *
+	 * @var array $files_to_search
 	 */
 	private $files = [];
 
@@ -64,8 +74,22 @@ final class Finder implements FinderInterface {
 	 * @inheritDoc
 	 */
 	public function in( $dirs ) {
+
+		if ( $this->dirs ) {
+			throw new InvalidStateException('Directory to search has already been specified.');
+		}
+
 		$this->dirs = (array) $dirs;
+		$this->filter->in( $this->dirs );
 		return $this;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function names( $files ) {
+		$this->files = \array_replace_recursive( $this->files, (array) $files );
+		$this->filter->names( $this->files );
 	}
 
 	/**
@@ -79,15 +103,15 @@ final class Finder implements FinderInterface {
 	 * @inheritDoc
 	 * @psalm-suppress MixedInferredReturnType
 	 */
-	public function firstFileBySlugs( $slugs, $extensions = 'php', $slugs_separator = '-' ): SplFileInfo {
+	public function firstFile( $segments, $extensions = 'php', $segments_separator = '-' ): SplFileInfo {
 
 		/**
 		 * @psalm-suppress MixedReturnStatement
 		 */
-		return $this->searchOneOrAllFilesBySlugsOnContext(
-			$slugs,
+		return $this->searchOneOrAllFilesBySegments(
+			$segments,
 			$extensions,
-			$slugs_separator,
+			$segments_separator,
 			[$this, 'filterFirstOneFile']
 		);
 	}
@@ -96,67 +120,69 @@ final class Finder implements FinderInterface {
 	 * @inheritDoc
 	 * @psalm-suppress MixedInferredReturnType
 	 */
-	public function allFilesBySlugs( $slugs, $extensions = 'php', $slugs_separator = '-' ): array {
+	public function allFiles( $segments, $extensions = 'php', $segments_separator = '-' ): array {
 
 		/**
 		 * @psalm-suppress MixedReturnStatement
 		 */
-		return $this->searchOneOrAllFilesBySlugsOnContext(
-			$slugs,
+		return $this->searchOneOrAllFilesBySegments(
+			$segments,
 			$extensions,
-			$slugs_separator,
+			$segments_separator,
 			[$this, 'filterAllFiles']
 		);
 	}
 
 	/**
-	 * @param string|array<string> $slugs Add a slug or an array of slugs for search files
-	 * @param string|array<string> $extensions Add a file extension or an array of files extension, Default is php
-	 * @param string $slugs_separator
-	 * @param callable $method_name
-	 * @return mixed
+	 * @inheritDoc
 	 */
-	private function searchOneOrAllFilesBySlugsOnContext(
-		$slugs,
+	public function getIterator() {
+		return $this->filter->getIterator();
+	}
+
+	/**
+	 * @param string|array<string> $segments Add a segment or an array of segments for search files
+	 * @param string|array<string> $extensions Add a file extension or an array of files extension, Default is php
+	 * @param string $segments_separator
+	 * @param callable $method_name
+	 * @return SplFileInfo|array<SplFileInfo>
+	 */
+	private function searchOneOrAllFilesBySegments(
+		$segments,
 		$extensions,
-		string $slugs_separator,
+		string $segments_separator,
 		callable $method_name
 	) {
 		$this->assertDirsIsNotEmpty();
 
-		$slugs = array_filter( (array) $slugs );
-
-		if ( empty( $slugs ) ) {
-			throw new InvalidArgumentException('$slugs must not be empty');
-		}
+		$segments = array_filter( (array) $segments );
 
 		/** @var array<string> An array of files */
 		$files = [];
-		$this->generateSlugs( $slugs, $files, (array)$extensions, $slugs_separator );
+		$this->generateFileNames( $segments, $files, (array)$extensions, $segments_separator );
+		$this->names( $files );
 
-		$this->searchAndAssertIfHasFile( $files, $method_name );
+		$this->searchAndAssertIfHasFile( $method_name );
 
 		/**
 		 * @psalm-suppress MixedReturnStatement
 		 */
-		return $this->files[ $this->generateKey( $files[ 0 ] ) ];
+		return $this->files_to_search[ $this->generateKey( $this->files[ 0 ] ) ];
 	}
 
 	/**
-	 * @param array<string> $files
 	 * @return SplFileInfo|string Return the first full path to a view found ( full/path/to/a/view.{$extension} )
 	 *                            or return an array of files, depend on your implementation.
 	 */
-	private function filterFirstOneFile( array $files ) {
-		return $this->filter->firstOneFile( $files, $this->dirs );
+	private function filterFirstOneFile() {
+		return $this->filter->firstFile();
 	}
 
 	/**
-	 * @param array<string> $files
 	 * @return array
 	 */
-	private function filterAllFiles( array $files ): array {
-		return $this->filter->allFiles( $files, $this->dirs );
+	private function filterAllFiles(): array {
+		return \iterator_to_array( $this->getIterator() );
 	}
 
 	/**
@@ -166,31 +192,32 @@ final class Finder implements FinderInterface {
 	 * @param callable $method_name
 	 * @return bool        Return true if a file exists
 	 */
-	private function has( array $files, callable $method_name ): bool {
+	private function has( callable $method_name ): bool {
 
-		$key = $this->generateKey( $files[0] );
+		$key = $this->generateKey( $this->files[0] );
 
-		if ( empty( $this->files[ $key ] ) ) {
-			$this->files[ $key ] = call_user_func( $method_name, $files );
+		if ( empty( $this->files_to_search[ $key ] ) ) {
+			$this->files_to_search[ $key ] = call_user_func( $method_name );
 		}
 
-		return boolval( $this->files[ $key ]  );
+		return boolval( $this->files_to_search[ $key ]  );
 	}
 
 	/**
 	 * @param array<string> $files
 	 * @param callable $method_name
 	 */
-	private function searchAndAssertIfHasFile( array $files, callable $method_name ): void {
-		if ( !$this->has( $files, $method_name ) ) {
+	private function searchAndAssertIfHasFile( callable $method_name ): void {
+		if ( !$this->has( $method_name ) ) {
 			throw new FileNotFoundException(
-				sprintf( 'The file %s does not exists', strval( $files[ 0 ] ) )
+//				sprintf( 'The file %s does not exists', strval( $files[ 0 ] ) )
+				sprintf( 'The file "%s" does not exists', \implode('" and "', $this->files) )
 			);
 		}
 	}
 
 	/**
-	 * Generate slugs from given array of names
+	 * Generate slugs from a given array of segments
 	 * [ 'content', 'name', 'otherName' ]
 	 *
 	 * [
@@ -199,33 +226,29 @@ final class Finder implements FinderInterface {
 	 *    'content.php',
 	 * ]
 	 *
-	 * @param array<string> $slugs
+	 * @param array<string> $segments
 	 * @param array<string> $files
 	 * @param array<string> $extensions
-	 * @param string $slugs_separator
+	 * @param string $segments_separator
 	 */
-	private function generateSlugs(
-		array $slugs,
+	private function generateFileNames(
+		array $segments,
 		array &$files,
 		array $extensions,
-		string $slugs_separator
+		string $segments_separator
 	): void {
 
-		foreach ( $extensions as $extension ) {
-			$file_name = '';
-
-			foreach ( $slugs as $slug ) {
-				$file_name .= $slugs_separator . $slug;
-			}
-
-			$file_name .= '.' . $extension;
-
-			$files[] = ltrim( $file_name, $slugs_separator );
+		if ( empty( $segments ) ) {
+			throw new InvalidArgumentException('$segments must not be empty');
 		}
 
-		if ( count( $slugs ) >= 2 ) {
-			array_pop( $slugs );
-			$this->generateSlugs( $slugs, $files, $extensions, $slugs_separator );
+		foreach ( $extensions as $extension ) {
+			$files[] = implode($segments_separator, $segments) . '.' . $extension;
+		}
+
+		if ( count( $segments ) >= 2 ) {
+			array_pop( $segments );
+			$this->generateFileNames( $segments, $files, $extensions, $segments_separator );
 		}
 	}
 
@@ -253,13 +276,13 @@ final class Finder implements FinderInterface {
 	}
 
 	/**
-	 * @param string|array<string> $slugs Add a slug or an array of slugs for search files
+	 * @param string|array<string> $segments Add a segment or an array of segments for search files
 	 * @param string|array<string> $extensions Add a file extension or an array of files extension, Default is php
-	 * @param string $slugs_separator
+	 * @param string $segments_separator
 	 * @return SplFileInfo Return a full path of the file searched
 	 * @deprecated
 	 */
-//	public function find( $slugs, $extensions = 'php', $slugs_separator = '-' ): SplFileInfo {
+//	public function find( $segments, $extensions = 'php', $segments_separator = '-' ): SplFileInfo {
 //		trigger_error( sprintf(
 //			'The method %2$s() is deprecated, use %1$s::firstFileBySlugs() instead.',
 //			__CLASS__,

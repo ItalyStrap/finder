@@ -5,10 +5,11 @@ namespace ItalyStrap\Tests;
 
 use Codeception\Test\Unit;
 use ItalyStrap\Finder\Exceptions\FileNotFoundException;
+use ItalyStrap\Finder\Exceptions\InvalidStateException;
 use ItalyStrap\Finder\FileInfoFactory;
 use ItalyStrap\Finder\Finder;
 use ItalyStrap\Finder\FinderInterface;
-use ItalyStrap\Finder\SearchFilesHierarchy;
+use ItalyStrap\Finder\FilesHierarchyIterator;
 use LogicException;
 use SplFileInfo;
 use UnitTester;
@@ -45,8 +46,8 @@ class FinderIntegrationTest extends Unit {
 		$this->paths = [];
 	}
 
-	private function getInstance() {
-		$sut = new Finder( new SearchFilesHierarchy( new FileInfoFactory() ) );
+	private function getInstance(): FinderInterface {
+		$sut = new Finder( new FilesHierarchyIterator( new FileInfoFactory() ) );
 		$this->assertInstanceOf( FinderInterface::class, $sut );
 		$this->assertInstanceOf( Finder::class, $sut );
 		return $sut;
@@ -67,9 +68,11 @@ class FinderIntegrationTest extends Unit {
 		$sut->in( $this->paths );
 
 		$this->expectException( FileNotFoundException::class );
-		$this->expectExceptionMessage('The file file-name-does-not-exists.php does not exists');
+		$this->expectExceptionMessage(
+			'The file "file-name-does-not-exists.php" and "file-name.php" does not exists'
+		);
 
-		$files = $sut->firstFileBySlugs( ['file-name', 'does-not-exists'] );
+		$files = $sut->firstFile( ['file-name', 'does-not-exists'] );
 	}
 
 	/**
@@ -87,7 +90,7 @@ class FinderIntegrationTest extends Unit {
 				Finder::class . '::firstFileReadable()'
 			)
 		);
-		$files = $sut->firstFileBySlugs( ['test'] );
+		$files = $sut->firstFile( ['test'] );
 	}
 
 	/**
@@ -98,7 +101,19 @@ class FinderIntegrationTest extends Unit {
 		$sut->in( [] );
 
 		$this->expectException( LogicException::class );
-		$files = $sut->firstFileBySlugs( ['test'] );
+		$files = $sut->firstFile( ['test'] );
+	}
+
+	/**
+	 * @test
+	 */
+	public function itShouldThrownStateExceptionIfInMethodIsCalledMoreThanOnce() {
+		$sut = $this->getInstance();
+		$sut->in( $this->paths );
+
+		$this->expectException( InvalidStateException::class );
+		$sut->in( $this->paths );
+		$files = $sut->firstFile( ['test'] );
 	}
 
 	/**
@@ -106,8 +121,29 @@ class FinderIntegrationTest extends Unit {
 	 */
 	public function itShouldChain() {
 		$sut = $this->getInstance();
-		$files = $sut->in( $this->paths )->firstFileBySlugs( ['test'] );
+		$files = $sut->in( $this->paths )->firstFile( ['test'] );
 	}
+
+	/**
+	 * @test
+	 */
+	public function itShouldAddFilesName() {
+		$sut = $this->getInstance();
+		$sut->in( $this->paths );
+		$sut->names('test.php');
+	}
+
+	/**
+	 * @test
+	 */
+//	public function itShouldGetIterator() {
+//		$sut = $this->getInstance();
+//		$sut->in( $this->paths );
+//		$sut->names('test.php');
+//		$iterator = $sut->getIterator();
+//		$this->assertInstanceOf(\Traversable::class, $iterator, '');
+//		$this->assertInstanceOf(\Iterator::class, $iterator, '');
+//	}
 
 	public function emptySlugsProvider() {
 		return [
@@ -140,8 +176,8 @@ class FinderIntegrationTest extends Unit {
 	public function itShouldThrownInvalidArgumentExceptionIf( $slug_or_slugs ) {
 		$sut = $this->getInstance();
 		$this->expectException( \InvalidArgumentException::class );
-		$this->expectExceptionMessage('$slugs must not be empty');
-		$files = $sut->in( $this->paths )->firstFileBySlugs( $slug_or_slugs );
+		$this->expectExceptionMessage('$segments must not be empty');
+		$files = $sut->in( $this->paths )->firstFile( $slug_or_slugs );
 	}
 
 	public function filesNamesProvider() {
@@ -204,7 +240,7 @@ class FinderIntegrationTest extends Unit {
 		/**
 		 * @var $full_path_to_file SplFileInfo
 		 */
-		$full_path_to_file = $sut->firstFileBySlugs( $to_find );
+		$full_path_to_file = $sut->firstFile( $to_find );
 		$this->assertFileIsReadable( $full_path_to_file->getRealPath(), '' );
 		$this->assertStringContainsString( $expected, $full_path_to_file->getFilename(), '' );
 	}
@@ -220,11 +256,11 @@ class FinderIntegrationTest extends Unit {
 		/**
 		 * @var $full_path_to_file01 SplFileInfo
 		 */
-		$full_path_to_file01 = $sut->firstFileBySlugs( 'content' );
-		$full_path_to_file02 = $sut->firstFileBySlugs( 'content' );
+		$full_path_to_file01 = $sut->firstFile( 'content' );
+		$full_path_to_file02 = $sut->firstFile( 'content' );
 		$this->assertSame( $full_path_to_file01, $full_path_to_file02, '' );
 
-		$full_path_to_file03 = $sut->firstFileBySlugs(['content', 'none']);
+		$full_path_to_file03 = $sut->firstFile(['content', 'none']);
 		$this->assertNotSame( $full_path_to_file01, $full_path_to_file03, '' );
 	}
 
@@ -236,7 +272,7 @@ class FinderIntegrationTest extends Unit {
 		$sut = $this->getInstance();
 		$sut->in( $this->paths );
 
-		$configs = $sut->allFilesBySlugs('config');
+		$configs = $sut->allFiles('config');
 
 		$this->assertCount(3, $configs, '');
 
@@ -259,7 +295,7 @@ class FinderIntegrationTest extends Unit {
 		$sut = $this->getInstance();
 		$sut->in( $this->paths );
 
-		$configs = $sut->allFilesBySlugs('config');
+		$configs = $sut->allFiles('config');
 
 		$expect = [
 			'Plugin config',
@@ -281,7 +317,7 @@ class FinderIntegrationTest extends Unit {
 		$sut->in( $this->paths );
 
 		/** @var array<\SplFileInfo> $configs */
-		$configs = $sut->allFilesBySlugs('config');
+		$configs = $sut->allFiles('config');
 
 		/** @var array $result */
 		$result = array_map(function ( $config ) {
@@ -311,14 +347,18 @@ class FinderIntegrationTest extends Unit {
 		$sut->in( $paths );
 
 		/** @var array<\SplFileInfo> $configs */
-		$css = $sut->firstFileBySlugs('style', 'css');
+		$css = $sut->firstFile('style', 'css');
 		$this->assertStringContainsString($paths['pluginPath'], $css->getRealPath(), '');
 		$this->assertEquals('style.css', $css->getFilename(), '');
 
 		/** @var array<\SplFileInfo> $configs */
-		$css = $sut->firstFileBySlugs('custom', 'css');
+		$css = $sut->firstFile('custom', 'css');
 		$this->assertStringContainsString($paths['childPath'], $css->getRealPath(), '');
 		$this->assertEquals('custom.css', $css->getFilename(), '');
+
+		$xample = [
+			'test'
+		];
 
 		$files = [
 			['no'],
@@ -329,9 +369,9 @@ class FinderIntegrationTest extends Unit {
 
 		$css = '';
 		$count = \count($files) - 1;
-		foreach ( $files as $key => $slugs ) {
+		foreach ( $files as $key => $segments ) {
 			try {
-				$css = $sut->firstFileBySlugs( $slugs, 'css', '.' );
+				$css = $sut->firstFile( $segments, 'css', '.' );
 				if ( $css->isReadable() ) {
 					break;
 				}
@@ -342,5 +382,59 @@ class FinderIntegrationTest extends Unit {
 
 		$this->assertStringContainsString($paths['pluginPath'], $css->getRealPath(), '');
 		$this->assertEquals('style.css', $css->getFilename(), '');
+	}
+
+	/**
+	 * @test
+	 */
+	public function searchFiles() {
+
+		$paths = \array_map(function ($path) {
+			$path .= '/assets/css';
+			$path = \strval( \realpath( $path ) );
+			$this->assertIsReadable($path, '');
+			return $path;
+		}, $this->paths);
+
+		$sut = $this->getInstance();
+		$sut->in( $paths );
+
+		/**
+		 * byFileName
+		 * 'file-name.php'
+		 * ['file-name.php']
+		 *
+		 * bySegments
+		 * 'file'
+		 * ['file']
+		 *
+		 * [
+		 *  ['file'],
+		 *  ['file'],
+		 * ]
+		 */
+
+//		$iterator = new \DirectoryIterator($this->paths['pluginPath']);
+		$iterator = new \FilesystemIterator($this->paths['pluginPath']);
+
+		$iterator = new \CallbackFilterIterator($iterator, function (
+			\SplFileInfo $item,
+			$key,
+			\Iterator $iterator
+		){
+//			codecept_debug('ITEM');
+//			codecept_debug($item);
+//			codecept_debug('KEY');
+//			codecept_debug($key);
+//			codecept_debug('ITERATOR');
+//			codecept_debug($iterator);
+
+			return $item->isFile();
+		});
+
+		foreach ( $iterator as $key => $item ) {
+//			codecept_debug($key);
+			codecept_debug($item);
+		}
 	}
 }

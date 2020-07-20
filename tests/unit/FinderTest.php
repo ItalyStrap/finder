@@ -6,7 +6,7 @@ namespace ItalyStrap\Tests;
 use ItalyStrap\Finder\FileInfoFactory;
 use ItalyStrap\Finder\Finder;
 use ItalyStrap\Finder\FinderInterface;
-use ItalyStrap\Finder\SearchFilesHierarchy;
+use ItalyStrap\Finder\FilesHierarchyIterator;
 use ItalyStrap\Finder\SearchFileStrategy;
 
 class FinderTest extends \Codeception\Test\Unit {

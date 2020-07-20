@@ -8,7 +8,7 @@ use ItalyStrap\Finder\FileInfoFactory;
 use ItalyStrap\Finder\Finder;
 use ItalyStrap\Finder\FinderFactory;
 use ItalyStrap\Finder\FinderInterface;
-use ItalyStrap\Finder\SearchFilesHierarchy;
+use ItalyStrap\Finder\FilesHierarchyIterator;
 use UnitTester;
 
 class FinderFactoryTest extends Unit {
