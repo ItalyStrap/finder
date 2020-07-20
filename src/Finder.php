@@ -43,12 +43,7 @@ final class Finder implements FinderInterface, \IteratorAggregate {
 	private $files_to_search = [];
 
 	/**
-	 * List of files to search
-	 * [
-	 * 		''
-	 * ]
-	 *
-	 * @var array $files_to_search
+	 * @var string[]
 	 */
 	private $files = [];
 
@@ -87,9 +82,16 @@ final class Finder implements FinderInterface, \IteratorAggregate {
 	/**
 	 * @inheritDoc
 	 */
-	public function names( $files ) {
-		$this->files = \array_replace_recursive( $this->files, (array) $files );
+	public function names( $files ): void {
+		$this->files = (array) \array_replace_recursive( $this->files, (array) $files );
 		$this->filter->names( $this->files );
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public function getIterator() {
+		return $this->filter->getIterator();
 	}
 
 	/**
@@ -134,18 +136,11 @@ final class Finder implements FinderInterface, \IteratorAggregate {
 	}
 
 	/**
-	 * @inheritDoc
-	 */
-	public function getIterator() {
-		return $this->filter->getIterator();
-	}
-
-	/**
 	 * @param string|array<string> $segments Add a segment or an array of segments for search files
 	 * @param string|array<string> $extensions Add a file extension or an array of files extension, Default is php
 	 * @param string $segments_separator
 	 * @param callable $method_name
-	 * @return SplFileInfo|array<SplFileInfo>
+	 * @return mixed
 	 */
 	private function searchOneOrAllFilesBySegments(
 		$segments,
@@ -157,9 +152,7 @@ final class Finder implements FinderInterface, \IteratorAggregate {
 
 		$segments = array_filter( (array) $segments );
 
-		/** @var array<string> An array of files */
-		$files = [];
-		$this->generateFileNames( $segments, $files, (array)$extensions, $segments_separator );
+		$files = $this->generateFileNames( $segments,(array)$extensions, $segments_separator );
 		$this->names( $files );
 
 		$this->searchAndAssertIfHasFile( $method_name );
@@ -188,7 +181,6 @@ final class Finder implements FinderInterface, \IteratorAggregate {
 	/**
 	 * Check if the file exists and is readable
 	 *
-	 * @param array<string> $files File(s) to search for, in order.
 	 * @param callable $method_name
 	 * @return bool        Return true if a file exists
 	 */
@@ -204,13 +196,11 @@ final class Finder implements FinderInterface, \IteratorAggregate {
 	}
 
 	/**
-	 * @param array<string> $files
 	 * @param callable $method_name
 	 */
 	private function searchAndAssertIfHasFile( callable $method_name ): void {
 		if ( !$this->has( $method_name ) ) {
 			throw new FileNotFoundException(
-//				sprintf( 'The file %s does not exists', strval( $files[ 0 ] ) )
 				sprintf( 'The file "%s" does not exists', \implode('" and "', $this->files) )
 			);
 		}
@@ -227,16 +217,17 @@ final class Finder implements FinderInterface, \IteratorAggregate {
 	 * ]
 	 *
 	 * @param array<string> $segments
-	 * @param array<string> $files
 	 * @param array<string> $extensions
 	 * @param string $segments_separator
+	 * @return array
 	 */
 	private function generateFileNames(
 		array $segments,
-		array &$files,
 		array $extensions,
 		string $segments_separator
-	): void {
+	) {
+
+		$files = [];
 
 		if ( empty( $segments ) ) {
 			throw new InvalidArgumentException('$segments must not be empty');
@@ -248,8 +239,10 @@ final class Finder implements FinderInterface, \IteratorAggregate {
 
 		if ( count( $segments ) >= 2 ) {
 			array_pop( $segments );
-			$this->generateFileNames( $segments, $files, $extensions, $segments_separator );
+			$files = \array_merge($files, $this->generateFileNames( $segments, $extensions, $segments_separator ));
 		}
+
+		return $files;
 	}
 
 	/**

@@ -18,7 +18,8 @@ interface FinderInterface {
 	public function in( $dirs );
 
 	/**
-	 * @param $files
+	 * @param string[] $files
+	 * @return void
 	 */
 	public function names( $files );
 
@@ -66,7 +67,7 @@ interface FinderInterface {
 	 * @param string|array<string> $slugs
 	 * @param string|array<string> $extensions
 	 * @param string $slugs_separator
-	 * @return mixed
+	 * @return array
 	 */
 	public function allFiles( $slugs, $extensions = 'php', $slugs_separator = '-' ): array;
 }

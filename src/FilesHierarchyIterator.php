@@ -18,38 +18,38 @@ final class FilesHierarchyIterator implements SearchFileStrategy {
 	private $factory;
 
 	/**
-	 * @var array
+	 * @var string[]
 	 */
-	private $dirs;
+	private $dirs = [];
 
 	/**
-	 * @var array
+	 * @var string[]
 	 */
-	private $names;
+	private $names = [];
 
 	/**
 	 * @var bool
 	 */
-	private $only_first_file;
+	private $only_first_file = false;
 
 	/**
 	 * @inheritDoc
 	 */
-	public function in( array $dirs ) {
+	final public function in( array $dirs ): void {
 		$this->dirs = $dirs;
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function names( array $names ) {
+	final public function names( array $names ): void {
 		$this->names = $names;
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	public function onlyFirstFile() {
+	public function onlyFirstFile():void {
 		$this->only_first_file = true;
 	}
 
@@ -65,7 +65,9 @@ final class FilesHierarchyIterator implements SearchFileStrategy {
 	 * @inheritDoc
 	 */
 	public function firstFile() {
+		/** @var string $file */
 		foreach ( $this->getNames() as $file ) {
+			/** @var string $dir */
 			foreach ( $this->getDirs() as $dir ) {
 				$temp_file = $this->getFileInfo( $dir, $file );
 				if ( $temp_file->isReadable() ) {
@@ -82,11 +84,16 @@ final class FilesHierarchyIterator implements SearchFileStrategy {
 	 */
 	private function buildIterator() {
 		$iterator = new \ArrayIterator();
+		/** @var string $file */
 		foreach ($this->getNames() as $file) {
+			/** @var string $dir */
 			foreach ($this->getDirs() as $dir) {
 				$temp_file = $this->getFileInfo( $dir, $file );
 
 				if ( $temp_file->isReadable() ) {
+					/**
+					 * @psalm-suppress InvalidArgument
+					 */
 					$iterator->append( $temp_file );
 				}
 

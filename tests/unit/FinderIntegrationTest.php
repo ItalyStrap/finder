@@ -398,6 +398,11 @@ class FinderIntegrationTest extends Unit {
 
 		$sut = $this->getInstance();
 		$sut->in( $paths );
+		$sut->names( ['style.css'] );
+
+		foreach ( $sut as $item ) {
+
+		}
 
 		/**
 		 * byFileName
@@ -414,27 +419,5 @@ class FinderIntegrationTest extends Unit {
 		 * ]
 		 */
 
-//		$iterator = new \DirectoryIterator($this->paths['pluginPath']);
-		$iterator = new \FilesystemIterator($this->paths['pluginPath']);
-
-		$iterator = new \CallbackFilterIterator($iterator, function (
-			\SplFileInfo $item,
-			$key,
-			\Iterator $iterator
-		){
-//			codecept_debug('ITEM');
-//			codecept_debug($item);
-//			codecept_debug('KEY');
-//			codecept_debug($key);
-//			codecept_debug('ITERATOR');
-//			codecept_debug($iterator);
-
-			return $item->isFile();
-		});
-
-		foreach ( $iterator as $key => $item ) {
-//			codecept_debug($key);
-			codecept_debug($item);
-		}
 	}
 }
