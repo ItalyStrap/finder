@@ -138,12 +138,14 @@ class SearchFilesHierarchyIntegrationTest extends Unit {
 		$sut->in( $paths );
 		$sut->names( (array) $file );
 
-//		$sut->onlyFirstFile();
-//		$this->assertCount(1, $sut, '');
+		foreach ( $sut as $item ) {
+			/**
+			 * @var $file_name_found SplFileInfo
+			 */
+			$file_name_found = $item;
+			break;
+		}
 
-		/** @var SplFileInfo $file_name_found */
-		$file_name_found = $sut->firstFile();
-//
 		$this->assertEquals($expected, $file_name_found->getRealPath(), '');
 	}
 
@@ -219,10 +221,14 @@ class SearchFilesHierarchyIntegrationTest extends Unit {
 		$sut->in( [$dir] );
 		$sut->names( (array) $file );
 
-		/**
-		 * @var $file_name_found SplFileInfo
-		 */
-		$file_name_found = $sut->firstFile();
+		foreach ( $sut as $item ) {
+			/**
+			 * @var $file_name_found SplFileInfo
+			 */
+			$file_name_found = $item;
+			break;
+		}
+
 		$this->assertEquals($expected, $file_name_found->getRealPath(), '');
 		$this->assertInstanceOf( SplFileInfo::class, $file_name_found, '');
 
@@ -250,12 +256,45 @@ class SearchFilesHierarchyIntegrationTest extends Unit {
 	 */
 	public function itShouldIterateOverIterator() {
 		$sut = $this->getInstance();
-		$sut->in( [ codecept_data_dir( 'fixtures/plugin' ) ] );
-		$sut->names( ['test.php'] );
+		$sut->in(
+			[
+				codecept_data_dir( 'fixtures/plugin' ),
+				codecept_data_dir( 'fixtures/parent' ),
+			]
+		);
+		$sut->names( ['index.php'] );
 
 		/** @var \SplFileInfo $item */
 		foreach ( $sut as $item ) {
-			$this->assertSame('test.php', $item->getFilename(), '');
+			$this->assertSame('index.php', $item->getFilename(), '');
+		}
+	}
+
+	/**
+	 * @test
+	 */
+	public function itShouldIterateOverIteratorregerg() {
+		$sut = $this->getInstance();
+		$sut->in(
+			[
+				codecept_data_dir( 'fixtures/plugin' ),
+				codecept_data_dir( 'fixtures/parent' ),
+			]
+		);
+		$sut->names( ['index.php'] );
+
+		$sut = new \IteratorIterator($sut);
+//		$sut = new \CallbackFilterIterator($sut, function ($item, $key, $iterator) {
+////			codecept_debug( func_get_args() );
+//			return $key === 0;
+//		});
+
+		$sut = new \LimitIterator($sut, 0, 1);
+
+		/** @var \SplFileInfo $item */
+		foreach ( $sut as $item ) {
+			codecept_debug('COUNT');
+			$this->assertSame('index.php', $item->getFilename(), '');
 		}
 	}
 }

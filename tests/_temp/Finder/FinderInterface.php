@@ -3,25 +3,17 @@ declare(strict_types=1);
 
 namespace ItalyStrap\Finder;
 
-use SplFileInfo;
-
 /**
  * Interface FinderInterface
  * @package ItalyStrap\Finder
  */
-interface FinderInterface {
-
+interface FinderInterface
+{
 	/**
-	 * @param string|array<string> $dirs Add a directory or an array of directories for searching files
+	 * @param string|array $dirs Add a directory or an array of directories for searching files
 	 * @return $this Return the object instance.
 	 */
 	public function in( $dirs );
-
-	/**
-	 * @param string[] $files
-	 * @return void
-	 */
-	public function names( $files );
 
 	/**
 	 * Load a template part into a template
@@ -56,18 +48,9 @@ interface FinderInterface {
 	 * @return string Return the full path of the template filename if one is located.
 	 */
 	/**
-	 * @param string|array<string> $segments Add a slug or an array of slugs for search files
-	 * @param string|array<string> $extension Add a file extension or an array of files extension, Default is php
-	 * @param string $slugs_separator
-	 * @return mixed Return a full path of the file searched
+	 * @param  string|array $slugs Add a slug or an array of slugs for search files
+	 * @param  string|array $extension Add a file extension or an array of files extension, Default is php
+	 * @return string|array Return a full path of the file searched
 	 */
-	public function firstFile( $slugs, $extension = 'php', $slugs_separator = '-' );
-
-	/**
-	 * @param string|array<string> $segments
-	 * @param string|array<string> $extensions
-	 * @param string $slugs_separator
-	 * @return array
-	 */
-	public function allFiles( $slugs, $extensions = 'php', $slugs_separator = '-' ): array;
+	public function find( $slugs, $extension = 'php' );
 }

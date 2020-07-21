@@ -97,7 +97,11 @@ class SearchFilesHierarchyTest extends Unit {
 		$sut = $this->getInstance();
 		$this->expectException( \LogicException::class );
 		$this->expectExceptionMessage( 'You must call ::name() method before iterate over' );
-		$sut->getIterator();
+		$iterator = $sut->getIterator();
+		/** @var \SplFileInfo $item */
+		foreach ( $iterator as $item ) {
+			$item->getRealPath();
+		}
 	}
 
 	/**
@@ -108,7 +112,11 @@ class SearchFilesHierarchyTest extends Unit {
 		$sut->names(['test.php']);
 		$this->expectException( \LogicException::class );
 		$this->expectExceptionMessage( 'You must call ::in() method before iterate over' );
-		$sut->getIterator();
+		$iterator = $sut->getIterator();
+		/** @var \SplFileInfo $item */
+		foreach ( $iterator as $item ) {
+			$item->getRealPath();
+		}
 	}
 
 	public function pathProvider() {
@@ -166,10 +174,14 @@ class SearchFilesHierarchyTest extends Unit {
 		$sut->names((array) $file);
 		$sut->in([$dir]);
 
-		/**
-		 * @var $file_name_found SplFileInfo
-		 */
-		$file_name_found = $sut->firstFile();
+		foreach ( $sut as $item ) {
+			/**
+			 * @var $file_name_found SplFileInfo
+			 */
+			$file_name_found = $item;
+			break;
+		}
+
 		$this->assertEquals($file_name_found, $expected, '');
 		$this->assertInstanceOf(\SplFileInfo::class, $file_name_found, '');
 
@@ -198,7 +210,14 @@ class SearchFilesHierarchyTest extends Unit {
 		$sut->in([$dir]);
 		$sut->names([ 'unreadable' ]);
 
-		$file_name_found = $sut->firstFile();
+		$file_name_found = '';
+		foreach ( $sut as $item ) {
+			/**
+			 * @var $file_name_found SplFileInfo
+			 */
+			$file_name_found = $item;
+			break;
+		}
 
 		$this->assertEmpty($file_name_found, '');
 		$this->assertEquals('', $file_name_found, '');

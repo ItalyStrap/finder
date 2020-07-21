@@ -97,6 +97,13 @@ class SearchFileBench {
 	public function benchCodedSearch() {
 		$this->searchFilesHierarchy->names(['test.php']);
 		$this->searchFilesHierarchy->in([$this->dir]);
-		$this->searchFilesHierarchy->firstFile();
+
+		foreach ( $this->searchFilesHierarchy as $item ) {
+			/**
+			 * @var $file_name_found \SplFileInfo
+			 */
+			$file_name_found = $item;
+			break;
+		}
 	}
 }

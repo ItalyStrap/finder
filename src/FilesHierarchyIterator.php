@@ -28,11 +28,6 @@ final class FilesHierarchyIterator implements SearchFileStrategy {
 	private $names = [];
 
 	/**
-	 * @var bool
-	 */
-	private $only_first_file = false;
-
-	/**
 	 * @inheritDoc
 	 */
 	final public function in( array $dirs ): void {
@@ -47,63 +42,11 @@ final class FilesHierarchyIterator implements SearchFileStrategy {
 	}
 
 	/**
-	 * @inheritDoc
-	 */
-	public function onlyFirstFile():void {
-		$this->only_first_file = true;
-	}
-
-	/**
 	 * SearchFilesHierarchy constructor.
 	 * @param FileInfoFactoryInterface $factory
 	 */
 	public function __construct( FileInfoFactoryInterface $factory ) {
 		$this->factory = $factory;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public function firstFile() {
-		/** @var string $file */
-		foreach ( $this->getNames() as $file ) {
-			/** @var string $dir */
-			foreach ( $this->getDirs() as $dir ) {
-				$temp_file = $this->getFileInfo( $dir, $file );
-				if ( $temp_file->isReadable() ) {
-					return $temp_file;
-				}
-			}
-		}
-
-		return '';
-	}
-
-	/**
-	 * @return \ArrayIterator
-	 */
-	private function buildIterator() {
-		$iterator = new \ArrayIterator();
-		/** @var string $file */
-		foreach ($this->getNames() as $file) {
-			/** @var string $dir */
-			foreach ($this->getDirs() as $dir) {
-				$temp_file = $this->getFileInfo( $dir, $file );
-
-				if ( $temp_file->isReadable() ) {
-					/**
-					 * @psalm-suppress InvalidArgument
-					 */
-					$iterator->append( $temp_file );
-				}
-
-				if ( $this->only_first_file && $iterator->count() === 1 ) {
-					return $iterator;
-				}
-			}
-		}
-
-		return $iterator;
 	}
 
 	/**
@@ -121,6 +64,31 @@ final class FilesHierarchyIterator implements SearchFileStrategy {
 	}
 
 	/**
+	 * @return \Generator
+	 */
+	private function buildIterator() {
+		/** @var string $file */
+		foreach ($this->getNames() as $file) {
+			/** @var string $dir */
+			foreach ($this->getDirs() as $dir) {
+				$temp_file = $this->getFileInfo( $dir, $file );
+				if ( $temp_file->isReadable() ) {
+					yield $temp_file;
+				}
+			}
+		}
+	}
+
+	/**
+	 * @param string $dir
+	 * @param string $file
+	 * @return SplFileInfo
+	 */
+	private function getFileInfo( $dir, $file ): SplFileInfo {
+		return $this->factory->make( $this->getRealPathOfFile( $dir, $file ) );
+	}
+
+	/**
 	 * @param string $dir
 	 * @param string $file
 	 * @return string
@@ -131,15 +99,6 @@ final class FilesHierarchyIterator implements SearchFileStrategy {
 				str_replace( '\\', DIRECTORY_SEPARATOR, $dir . self::DS . $file )
 			)
 		);
-	}
-
-	/**
-	 * @param string $dir
-	 * @param string $file
-	 * @return SplFileInfo
-	 */
-	private function getFileInfo( $dir, $file ): SplFileInfo {
-		return $this->factory->make( $this->getRealPathOfFile( $dir, $file ) );
 	}
 
 	/**

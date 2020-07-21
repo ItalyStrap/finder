@@ -69,7 +69,10 @@ class FinderIntegrationTest extends Unit {
 
 		$this->expectException( FileNotFoundException::class );
 		$this->expectExceptionMessage(
-			'The file "file-name-does-not-exists.php" and "file-name.php" does not exists'
+			\sprintf(
+				'"file-name-does-not-exists.php" and "file-name.php" does not exists in %s',
+				\rtrim( \implode(', ', $this->paths), ', ' )
+			)
 		);
 
 		$files = $sut->firstFile( ['file-name', 'does-not-exists'] );

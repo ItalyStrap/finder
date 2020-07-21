@@ -164,11 +164,17 @@ final class Finder implements FinderInterface, \IteratorAggregate {
 	}
 
 	/**
-	 * @return SplFileInfo|string Return the first full path to a view found ( full/path/to/a/view.{$extension} )
+	 * @return SplFileInfo Return the first full path to a view found ( full/path/to/a/view.{$extension} )
 	 *                            or return an array of files, depend on your implementation.
 	 */
 	private function filterFirstOneFile() {
-		return $this->filter->firstFile();
+		try {
+			foreach ($this->getIterator() as $item) {
+				return $item;
+			}
+		} catch (\Exception $e) {
+			throw new $e;
+		}
 	}
 
 	/**
@@ -201,7 +207,11 @@ final class Finder implements FinderInterface, \IteratorAggregate {
 	private function searchAndAssertIfHasFile( callable $method_name ): void {
 		if ( !$this->has( $method_name ) ) {
 			throw new FileNotFoundException(
-				sprintf( 'The file "%s" does not exists', \implode('" and "', $this->files) )
+				sprintf(
+					'"%s" does not exists in %s',
+					\implode('" and "', $this->files),
+					\rtrim( \implode(', ', $this->dirs), ', ' )
+				)
 			);
 		}
 	}
@@ -260,7 +270,7 @@ final class Finder implements FinderInterface, \IteratorAggregate {
 	 *
 	 */
 	private function assertDirsIsNotEmpty(): void {
-		if ( 0 === count( $this->dirs ) ) {
+		if ( empty( $this->dirs ) ) {
 			throw new LogicException( sprintf(
 				'You must call %1$s::in() method before calling %1$s::firstFileReadable() method.',
 				__CLASS__
