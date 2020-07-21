@@ -5,8 +5,8 @@ namespace ItalyStrap\Tests\Unit;
 
 use ItalyStrap\View\Exceptions\ViewNotFoundException;
 
-abstract class BaseViewFinderTestUnit extends \Codeception\Test\Unit
-{
+abstract class BaseViewFinderTestUnit extends \Codeception\Test\Unit {
+
 	/**
 	 * @var \UnitTester
 	 */
@@ -14,8 +14,8 @@ abstract class BaseViewFinderTestUnit extends \Codeception\Test\Unit
 
 	protected $paths = [];
 
-	protected function _before()
-	{
+	// phpcs:ignore -- Method from Codeception
+	protected function _before() {
 		$this->paths = [
 			'childPath'		=> \codecept_data_dir( 'fixtures/child' ),
 			'parentPath'	=> \codecept_data_dir( 'fixtures/parent' ),
@@ -23,8 +23,8 @@ abstract class BaseViewFinderTestUnit extends \Codeception\Test\Unit
 		];
 	}
 
-	protected function _after()
-	{
+	// phpcs:ignore -- Method from Codeception
+	protected function _after() {
 	}
 
 //	abstract protected function getType();
@@ -154,7 +154,6 @@ abstract class BaseViewFinderTestUnit extends \Codeception\Test\Unit
 		$this->assertStringNotContainsString( '_data\fixtures\child', $realPath );
 		$this->assertStringContainsString( '_data\fixtures\parent', $realPath );
 		$this->assertStringNotContainsString( '_data\fixtures\plugin', $realPath );
-
 	}
 
 	/**

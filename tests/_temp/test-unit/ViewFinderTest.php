@@ -3,9 +3,11 @@ declare(strict_types=1);
 
 namespace ItalyStrap\Tests\Unit;
 
+// phpcs:disable
 include_once 'BaseViewFinderTestUnit.php';
-class ViewFinderTest extends BaseViewFinderTestUnit
-{
+// phpcs:enable
+class ViewFinderTest extends BaseViewFinderTestUnit {
+
 
 	protected function setType() {
 		return \ItalyStrap\View\ViewFinder::class;
@@ -18,9 +20,8 @@ class ViewFinderTest extends BaseViewFinderTestUnit
 	/**
 	 * @test
 	 */
-    public function it_should_be_Instantiable()
-    {
+	public function itShouldBeInstantiable() {
 		$finder = $this->getInstance();
 		$this->assertInstanceOf( \ItalyStrap\View\ViewFinder::class, $finder );
-    }
+	}
 }

@@ -7,8 +7,8 @@ namespace ItalyStrap\Finder;
  * Interface FinderInterface
  * @package ItalyStrap\Finder
  */
-interface FinderInterface
-{
+interface FinderInterface {
+
 	/**
 	 * @param string|array $dirs Add a directory or an array of directories for searching files
 	 * @return $this Return the object instance.

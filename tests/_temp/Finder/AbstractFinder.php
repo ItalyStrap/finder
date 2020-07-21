@@ -7,7 +7,7 @@ namespace ItalyStrap\Finder;
  * Class AbstractFinder
  * @package ItalyStrap\Finder
  */
-abstract class AbstractFinder implements FinderInterface, \Countable
-{
+abstract class AbstractFinder implements FinderInterface, \Countable {
+
 	use FinderTrait;
 }

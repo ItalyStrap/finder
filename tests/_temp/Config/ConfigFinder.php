@@ -3,8 +3,8 @@ declare(strict_types=1);
 
 namespace ItalyStrap\Config;
 
-class ConfigFinder extends AbstractConfigFinder
-{
+class ConfigFinder extends AbstractConfigFinder {
+
 	/**
 	 * @inheritDoc
 	 */

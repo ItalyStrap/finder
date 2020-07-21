@@ -5,7 +5,7 @@ namespace ItalyStrap\Config\Exceptions;
 
 use ItalyStrap\Finder\Exceptions\FileNotFoundException;
 
-class ConfigFileNotFoundException extends FileNotFoundException
-{
+class ConfigFileNotFoundException extends FileNotFoundException {
+
 
 }

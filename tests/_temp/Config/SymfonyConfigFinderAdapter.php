@@ -6,8 +6,8 @@ namespace ItalyStrap\Config;
 use ItalyStrap\Finder\AbstractFinder;
 use Symfony\Component\Finder\Finder;
 
-class SymfonyConfigFinderAdapter extends AbstractFinder
-{
+class SymfonyConfigFinderAdapter extends AbstractFinder {
+
 	/**
 	 * @var Finder
 	 */

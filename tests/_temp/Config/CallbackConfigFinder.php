@@ -5,8 +5,8 @@ namespace ItalyStrap\Config;
 
 use ItalyStrap\Finder\AbstractFinder;
 
-class CallbackConfigFinder extends AbstractFinder
-{
+class CallbackConfigFinder extends AbstractFinder {
+
 	/**
 	 * @var callable
 	 */

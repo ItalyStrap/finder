@@ -166,15 +166,20 @@ final class Finder implements FinderInterface, \IteratorAggregate {
 	/**
 	 * @return SplFileInfo Return the first full path to a view found ( full/path/to/a/view.{$extension} )
 	 *                            or return an array of files, depend on your implementation.
+	 * @throws \Exception
 	 */
 	private function filterFirstOneFile() {
-		try {
-			foreach ($this->getIterator() as $item) {
-				return $item;
-			}
-		} catch (\Exception $e) {
-			throw new $e;
+		$file = null;
+		foreach ($this->getIterator() as $item) {
+			$file = $item;
+			break;
 		}
+
+		/**
+		 * @psalm-suppress MixedReturnStatement
+		 * @psalm-suppress NullableReturnStatement
+		 */
+		return $file;
 	}
 
 	/**

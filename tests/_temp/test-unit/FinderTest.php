@@ -1,27 +1,29 @@
 <?php
 declare(strict_types=1);
 
-class FinderTest extends \Codeception\Test\Unit
-{
-    /**
-     * @var \UnitTester
-     */
-    protected $tester;
+namespace ItalyStrap\Tests;
 
-    private $paths = [];
-    
-    protected function _before()
-    {
+class FinderTest extends \Codeception\Test\Unit {
+
+	/**
+	 * @var \UnitTester
+	 */
+	protected $tester;
+
+	private $paths = [];
+
+	// phpcs:ignore -- Method from Codeception
+	protected function _before() {
 		$this->paths = [
 			'childPath'		=> \codecept_data_dir( 'child' ),
 			'parentPath'	=> \codecept_data_dir( 'parent' ),
 			'pluginPath'	=> \codecept_data_dir( 'plugin' ),
 		];
-    }
+	}
 
-    protected function _after()
-    {
-    }
+	// phpcs:ignore -- Method from Codeception
+	protected function _after() {
+	}
 
 	private function getInstance() {
 		$finder = new class extends \ItalyStrap\Finder\AbstractFinder {
@@ -42,17 +44,17 @@ class FinderTest extends \Codeception\Test\Unit
 
 	/**
 	 * @test
+	 * phpcs:ignore -- Method from Codeception
 	 */
-	public function it_should_be_instantiable()
-	{
+	public function itShouldBeInstantiable() {
 		$finder = $this->getInstance();
 	}
 
 	/**
 	 * @test
+	 * phpcs:ignore -- Method from Codeception
 	 */
-	public function it_should_find_files()
-	{
+	public function itSshouldFindFiles() {
 		$finder = $this->getInstance();
 		$finder->in( $this->paths );
 		$files = $finder->find( ['config', 'content'] );

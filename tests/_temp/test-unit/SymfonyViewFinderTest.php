@@ -5,9 +5,11 @@ namespace ItalyStrap\Tests\Unit;
 
 use Symfony\Component\Finder\Finder;
 
+// phpcs:disable
 include_once 'BaseViewFinderTestUnit.php';
-class SymfonyViewFinderTest extends BaseViewFinderTestUnit
-{
+// phpcs:enable
+class SymfonyViewFinderTest extends BaseViewFinderTestUnit {
+
 
 	protected function setType() {
 		return \ItalyStrap\View\SymfonyViewFinderAdapter::class;
@@ -20,8 +22,7 @@ class SymfonyViewFinderTest extends BaseViewFinderTestUnit
 	/**
 	 * @test
 	 */
-	public function it_should_be_Instantiable()
-	{
+	public function itShouldBeInstantiable() {
 		$finder = $this->getInstance();
 		$this->assertInstanceOf( \ItalyStrap\View\SymfonyViewFinderAdapter::class, $finder );
 	}

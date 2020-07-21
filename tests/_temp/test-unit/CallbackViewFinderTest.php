@@ -5,9 +5,11 @@ namespace ItalyStrap\Tests\Unit;
 
 use ItalyStrap\View\CallbackViewFinder;
 
+// phpcs:disable
 include_once 'BaseViewFinderTestUnit.php';
-class CallbackViewFinderTest extends BaseViewFinderTestUnit
-{
+// phpcs:enable
+class CallbackViewFinderTest extends BaseViewFinderTestUnit {
+
 
 	protected function setType() {
 		return CallbackViewFinder::class;
@@ -34,8 +36,7 @@ class CallbackViewFinderTest extends BaseViewFinderTestUnit
 	/**
 	 * @test
 	 */
-	public function it_should_be_Instantiable()
-	{
+	public function itShouldBeInstantiable() {
 		$finder = $this->getInstance();
 		$this->assertInstanceOf( \ItalyStrap\View\CallbackViewFinder::class, $finder );
 	}

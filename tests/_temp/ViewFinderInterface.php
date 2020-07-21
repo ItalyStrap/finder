@@ -9,11 +9,11 @@ use ItalyStrap\Finder\FinderInterface;
  * Interface ViewFinderInterface
  * @package ItalyStrap\View
  */
-interface ViewFinderInterface extends FinderInterface
-{
+interface ViewFinderInterface extends FinderInterface {
+
 	/**
 	 * @inheritDoc
 	 * @return string
 	 */
-	public function find( $slugs, $extension = 'php' ): string ;
+	public function find( $slugs, $extension = 'php' ): string;
 }

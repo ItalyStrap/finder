@@ -5,7 +5,7 @@ namespace ItalyStrap\View\Exceptions;
 
 use ItalyStrap\Finder\Exceptions\FileNotFoundException;
 
-class ViewNotFoundException extends FileNotFoundException
-{
+class ViewNotFoundException extends FileNotFoundException {
+
 
 }

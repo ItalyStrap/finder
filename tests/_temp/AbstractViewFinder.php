@@ -6,8 +6,8 @@ namespace ItalyStrap\View;
 use ItalyStrap\Finder\AbstractFinder;
 use ItalyStrap\View\Exceptions\ViewNotFoundException;
 
-abstract class AbstractViewFinder extends AbstractFinder implements ViewFinderInterface, \Countable
-{
+abstract class AbstractViewFinder extends AbstractFinder implements ViewFinderInterface, \Countable {
+
 	/**
 	 * @var string
 	 */

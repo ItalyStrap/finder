@@ -6,8 +6,8 @@ namespace ItalyStrap\Config;
 use ItalyStrap\Finder\AbstractFinder;
 use ItalyStrap\Config\Exceptions\ConfigFileNotFoundException;
 
-abstract class AbstractConfigFinder extends AbstractFinder implements ConfigFinderInterface
-{
+abstract class AbstractConfigFinder extends AbstractFinder implements ConfigFinderInterface {
+
 	/**
 	 * @inheritDoc
 	 */

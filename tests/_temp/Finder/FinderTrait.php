@@ -7,8 +7,8 @@ namespace ItalyStrap\Finder;
  * Trait FinderTrait
  * @package ItalyStrap\Finder
  */
-trait FinderTrait
-{
+trait FinderTrait {
+
 	/**
 	 * @param array $files
 	 * @example:

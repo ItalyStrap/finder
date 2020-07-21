@@ -61,7 +61,7 @@ interface FinderInterface {
 	 * @param string $slugs_separator
 	 * @return mixed Return a full path of the file searched
 	 */
-	public function firstFile( $slugs, $extension = 'php', $slugs_separator = '-' );
+	public function firstFile( $segments, $extension = 'php', $slugs_separator = '-' );
 
 	/**
 	 * @param string|array<string> $segments
@@ -69,5 +69,5 @@ interface FinderInterface {
 	 * @param string $slugs_separator
 	 * @return array
 	 */
-	public function allFiles( $slugs, $extensions = 'php', $slugs_separator = '-' ): array;
+	public function allFiles( $segments, $extensions = 'php', $slugs_separator = '-' ): array;
 }

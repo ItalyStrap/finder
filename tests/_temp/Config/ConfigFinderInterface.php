@@ -9,11 +9,11 @@ use ItalyStrap\Finder\FinderInterface;
  * Interface ConfigFinderInterface
  * @package ItalyStrap\Config
  */
-interface ConfigFinderInterface extends FinderInterface
-{
+interface ConfigFinderInterface extends FinderInterface {
+
 	/**
 	 * @inheritDoc
 	 * @return array
 	 */
-	public function find( $slugs, $extension = 'php' ): array ;
+	public function find( $slugs, $extension = 'php' ): array;
 }
