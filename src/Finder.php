@@ -23,7 +23,7 @@ use function strval;
  * Class Finder
  * @package ItalyStrap\Finder
  */
-final class Finder implements FinderInterface, \IteratorAggregate {
+final class Finder implements FinderInterface {
 
 	/**
 	 * List of files found
