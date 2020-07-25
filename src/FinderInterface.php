@@ -9,7 +9,7 @@ use SplFileInfo;
  * Interface FinderInterface
  * @package ItalyStrap\Finder
  */
-interface FinderInterface {
+interface FinderInterface extends \IteratorAggregate {
 
 	/**
 	 * @param string|array<string> $dirs Add a directory or an array of directories for searching files

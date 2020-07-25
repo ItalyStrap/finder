@@ -421,4 +421,41 @@ class FinderIntegrationTest extends Unit {
 		 * ]
 		 */
 	}
+
+	/**
+	 * @test
+	 */
+	public function itShouldBeUniquePathsInDir() {
+
+		$paths = \array_map(function ($path) {
+			$path .= '/assets/css';
+			$path = \strval( \realpath( $path ) );
+			$this->assertIsReadable($path, '');
+			return $path;
+		}, $this->paths);
+
+		$sut = $this->getInstance();
+		$sut->in( $paths );
+		$sut->names( ['style.css'] );
+
+		foreach ( $sut as $item ) {
+		}
+
+		$this->fail('Add unique in dirs');
+
+		/**
+		 * byFileName
+		 * 'file-name.php'
+		 * ['file-name.php']
+		 *
+		 * bySegments
+		 * 'file'
+		 * ['file']
+		 *
+		 * [
+		 *  ['file'],
+		 *  ['file'],
+		 * ]
+		 */
+	}
 }
