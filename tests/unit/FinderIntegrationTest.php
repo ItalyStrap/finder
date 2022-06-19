@@ -390,10 +390,9 @@ class FinderIntegrationTest extends Unit {
 	/**
 	 * @test
 	 */
-	public function searchFiles() {
+	public function searchGlobalAndLocalFilesFromPatternSearch() {
 
 		$paths = \array_map(function ($path) {
-			$path .= '/assets/css';
 			$path = \strval( \realpath( $path ) );
 			$this->assertIsReadable($path, '');
 			return $path;
@@ -401,25 +400,24 @@ class FinderIntegrationTest extends Unit {
 
 		$sut = $this->getInstance();
 		$sut->in( $paths );
-		$sut->names( ['style.css'] );
-
-		foreach ( $sut as $item ) {
-		}
-
 		/**
-		 * byFileName
-		 * 'file-name.php'
-		 * ['file-name.php']
-		 *
-		 * bySegments
-		 * 'file'
-		 * ['file']
-		 *
-		 * [
-		 *  ['file'],
-		 *  ['file'],
-		 * ]
+		 * Remember: the order of `{{,*.}global,{,*.}local}` matters
 		 */
+		$sut->names( ['autoload/{{,*.}global,{,*.}local}.php'] );
+
+		$this->assertCount( 3, $sut, '' );
+
+		$expected_file_names = [
+			'config.local.php',
+			'config.global.php',
+			'config.local.php',
+		];
+
+		/** @var \SplFileInfo $item */
+		foreach ( $sut as $item ) {
+			$this->assertIsReadable( (string) $item );
+			$this->assertTrue( \in_array( $item->getFilename(), $expected_file_names, true ), '' );
+		}
 	}
 
 	/**

@@ -62,6 +62,9 @@
         "unit": [
             "vendor\\bin\\codecept run unit"
         ],
+        "unit:debug": [
+            "vendor\\bin\\codecept run unit --debug"
+        ],
         "unit:infection": [
             "@unit",
             "vendor\\bin\\infection --threads=8"
