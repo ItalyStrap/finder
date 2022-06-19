@@ -8,6 +8,7 @@ use ItalyStrap\Finder\Finder;
 use ItalyStrap\Finder\FinderInterface;
 use ItalyStrap\Finder\FilesHierarchyIterator;
 use ItalyStrap\Finder\SearchFileStrategy;
+use Prophecy\Prophet;
 
 class FinderTest extends \Codeception\Test\Unit {
 
@@ -15,6 +16,12 @@ class FinderTest extends \Codeception\Test\Unit {
 	 * @var \UnitTester
 	 */
 	protected $tester;
+
+	/**
+	 * @var Prophet
+	 */
+	private $prophet;
+
 	/**
 	 * @var \Prophecy\Prophecy\ObjectProphecy
 	 */
@@ -29,7 +36,8 @@ class FinderTest extends \Codeception\Test\Unit {
 
 	// phpcs:ignore -- Method from Codeception
 	protected function _before() {
-		$this->search_files = $this->prophesize( SearchFileStrategy::class );
+		$this->prophet = new Prophet;
+		$this->search_files = $this->prophet->prophesize( SearchFileStrategy::class );
 	}
 
 	// phpcs:ignore -- Method from Codeception

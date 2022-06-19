@@ -9,6 +9,7 @@ use ItalyStrap\Finder\FilesHierarchyIterator;
 use ItalyStrap\Finder\SearchFileStrategy;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
+use Prophecy\Prophet;
 use SplFileInfo;
 use UnitTester;
 use function is_readable;
@@ -20,6 +21,11 @@ class SearchFilesHierarchyTest extends Unit {
 	 * @var UnitTester
 	 */
 	protected $tester;
+
+	/**
+	 * @var Prophet
+	 */
+	private $prophet;
 
 	/**
 	 * @var ObjectProphecy
@@ -61,12 +67,14 @@ class SearchFilesHierarchyTest extends Unit {
 
 	// phpcs:ignore -- Method from Codeception
 	protected function _before() {
+		$this->prophet = new Prophet;
+
 		foreach ($this->getPaths() as $path ) {
 			$this->assertDirectoryExists($path, '');
 		}
 
-		$this->file_info_factory = $this->prophesize( FileInfoFactory::class );
-		$this->file_info_fake = $this->prophesize( SplFileInfo::class );
+		$this->file_info_factory = $this->prophet->prophesize( FileInfoFactory::class );
+		$this->file_info_fake = $this->prophet->prophesize( SplFileInfo::class );
 	}
 
 	// phpcs:ignore -- Method from Codeception

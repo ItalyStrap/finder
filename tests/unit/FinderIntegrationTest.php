@@ -423,7 +423,7 @@ class FinderIntegrationTest extends Unit {
 	}
 
 	/**
-	 * @test
+	 *
 	 */
 	public function itShouldBeUniquePathsInDir() {
 

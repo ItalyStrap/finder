@@ -31,14 +31,15 @@
         "italystrap/debug": "^2.0",
         "squizlabs/php_codesniffer": "*",
         "phpcompatibility/php-compatibility": "*",
-        "dealerdirect/phpcodesniffer-composer-installer": "^0.5.0",
+        "dealerdirect/phpcodesniffer-composer-installer": "^0.7",
         "phpstan/phpstan": "^0.11.16",
         "szepeviktor/phpstan-wordpress": "^0.3.0",
         "vimeo/psalm": "^3.9",
         "phpbench/phpbench": "@dev",
         "infection/infection": "^0.15.3",
         "phpmetrics/phpmetrics": "^2.5",
-        "nunomaduro/phpinsights": "^1.14.0"
+        "nunomaduro/phpinsights": "^1.14.0",
+        "phpspec/prophecy-phpunit": "^1.1"
     },
     "autoload": {
         "psr-4": {
@@ -59,7 +60,11 @@
             "vendor\\bin\\phpstan analyze --level=max && vendor\\bin\\psalm"
         ],
         "unit": [
-            "vendor\\bin\\codecept run unit && vendor\\bin\\infection --threads=8"
+            "vendor\\bin\\codecept run unit"
+        ],
+        "unit:infection": [
+            "@unit",
+            "vendor\\bin\\infection --threads=8"
         ],
         "bench": [
             "vendor\\bin\\phpbench run --report=performance"
@@ -77,5 +82,13 @@
     "support"    : {
         "issues": "https://github.com/ItalyStrap/finder/issues",
         "source": "https://github.com/ItalyStrap/finder"
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true,
+            "composer/package-versions-deprecated": true,
+            "cweagans/composer-patches": true,
+            "codeception/c3": true
+        }
     }
 }
